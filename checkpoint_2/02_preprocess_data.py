@@ -30,6 +30,37 @@ df = df.drop_duplicates()
 duplicates = df.duplicated().sum()
 print(f"Number of duplicates: {duplicates}") # Ispis broja duplikata
 
+fix_local_authority = {
+    "Crewe and ntwich": "Crewe and Nantwich",
+    "Stevege": "Stevenage",
+    "Blaeu Gwent": "Blaenau Gwent",
+    "Clackmannshire": "Clackmannanshire",
+    "North Larkshire": "North Lanarkshire",
+    "South Larkshire": "South Lanarkshire"
+}
+
+df["local_authority_(district)"] = df["local_authority_(district)"].replace(fix_local_authority)
+
+
+# Wales:
+
+#     North Wales
+#     Gwent
+#     South Wales
+#     Dyfed-Powys
+
+# Scotland:
+
+#     Northern
+#     Grampian
+#     Tayside
+#     Fife
+#     Lothian and Borders
+#     Central
+#     Strathclyde
+#     Dumfries and Galloway
+
+
 wales = ["North Wales", "Gwent", "South Wales", "Dyfed-Powys"]
 
 scotland = [
@@ -67,16 +98,14 @@ df20.to_csv("checkpoint_2/processed/Road_Accident_Data_PROCESSED_20.csv", index=
 CSV size before:  (307973, 21)
 CSV size after:  (300495, 20)
 
-
-  accident_index accident_date  ...  weather_conditions           vehicle_type
-0  200901BS70001    2021-01-01  ...  Fine no high winds                    Car
-1  200901BS70002    2021-01-05  ...  Fine no high winds  Taxi/Private hire car
-2  200901BS70003    2021-01-04  ...  Fine no high winds  Taxi/Private hire car
-3  200901BS70004    2021-01-05  ...               Other  Motorcycle over 500cc
-4  200901BS70005    2021-01-06  ...  Fine no high winds                    Car
+  accident_index accident_date day_of_week          junction_control  ...      time urban_or_rural_area  weather_conditions           vehicle_type
+0  200901BS70001    2021-01-01    Thursday  Give way or uncontrolled  ...  15:11:00               Urban  Fine no high winds                    Car
+1  200901BS70002    2021-01-05      Monday  Give way or uncontrolled  ...  10:59:00               Urban  Fine no high winds  Taxi/Private hire car
+2  200901BS70003    2021-01-04      Sunday  Give way or uncontrolled  ...  14:19:00               Urban  Fine no high winds  Taxi/Private hire car
+3  200901BS70004    2021-01-05      Monday       Auto traffic signal  ...  08:10:00               Urban               Other  Motorcycle over 500cc
+4  200901BS70005    2021-01-06     Tuesday       Auto traffic signal  ...  17:25:00               Urban  Fine no high winds                    Car
 
 [5 rows x 20 columns]
-
 
 ['accident_index' 'accident_date' 'day_of_week' 'junction_control'
  'junction_detail' 'accident_severity' 'latitude' 'light_conditions'
@@ -88,12 +117,11 @@ CSV size after:  (300495, 20)
 Number of duplicates: 1
 Number of duplicates: 0
 
-country
+ country
 England     275784
 Wales        13176
 Scotland     11534
 Name: count, dtype: int64
-
 Empty DataFrame
 
 Columns: [accident_index, accident_date, day_of_week, junction_control, junction_detail, accident_severity, latitude, light_conditions, local_authority_(district), longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country]
