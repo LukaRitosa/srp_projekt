@@ -1,0 +1,55 @@
+Prometna uprava vodi evidenciju o prometnim nesrećama koje su se dogodile na području UK.
+Nesreće su se desile u raznim uvjetma.
+Razni tipovi vozila su prouzročili nesreću.
+Nesreće su se deslie na raznim raskrižjima.
+Na mjestima nesreće kontroliraju razne kontrole prometa
+Nesreće su se desile na raznim tipovima ceste.
+Na mjestima nesreće su ograničavale raznie granice brzine.
+Nesreće sus e desile na raznim upravama/diskriktima.
+Uprave/distrikti su pokriveni policijskim postajama.
+
+
+
+ NESREĆA
+datum
+dan tjedna
+sati (vrijeme)
+latitud i longditud (koordinate)
+urbano/ruralno
+broj vozila
+broj usmrćenih
+ozbiljnost nesreće
+ograničenje brzine
+
+ OSVJETLJENJE
+osvjetljenje
+
+ VREMENSKI UVJETI
+vremenski uvjeti
+
+
+ STANJE CESTE
+stanje ceste
+
+
+ TIP VOZILA
+tip vozila
+
+
+ DETALJI RASKRIŽJA
+detalji raskrižja 
+
+
+ KONTROLA PROMETA
+kontrola prometa
+
+
+ TIP CESTE
+tip ceste
+
+
+ DISTRIKT 
+distrikt
+
+ POLICIJA
+policijska postaja
