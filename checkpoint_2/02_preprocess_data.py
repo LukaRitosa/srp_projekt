@@ -8,6 +8,8 @@ df = pd.read_csv(CSV_FILE_PATH, delimiter=',')
 print("CSV size before: ", df.shape)
 
 df= df.drop(columns="Carriageway_Hazards")
+df= df.drop(columns="Accident_Index")
+df= df.drop(columns="Junction_Control")
 
 df["Accident Date"]= pd.to_datetime(df["Accident Date"], format="%m/%d/%Y")
 df["Time"]= pd.to_datetime(df["Time"], format="%H:%M").dt.time
@@ -15,6 +17,11 @@ df["Time"]= pd.to_datetime(df["Time"], format="%H:%M").dt.time
 df = df.dropna() # Brisanje redaka s nedostajućim vrijednostima
 df.columns = df.columns.str.lower() # Pretvori sve nazive stupaca u mala slova
 df.columns = df.columns.str.replace(' ', '_')  # Zamjena razmaka u nazivima stupaca s donjom crtom
+
+df = df.rename(columns={
+    'local_authority_(district)': 'local_authority'
+})
+
 print("CSV size after: ", df.shape) # Ispis broja redaka i stupaca nakon predprocesiranja
 print(df.head()) # Ispis prvih redaka dataframe-a
 
@@ -25,8 +32,8 @@ print(df.columns.values)
 duplicates = df.duplicated().sum()
 print(f"Number of duplicates: {duplicates}") # Ispis broja duplikata
 
-
 df = df.drop_duplicates()
+
 duplicates = df.duplicated().sum()
 print(f"Number of duplicates: {duplicates}") # Ispis broja duplikata
 
@@ -39,7 +46,7 @@ fix_local_authority = {
     "South Larkshire": "South Lanarkshire"
 }
 
-df["local_authority_(district)"] = df["local_authority_(district)"].replace(fix_local_authority)
+df["local_authority"] = df["local_authority"].replace(fix_local_authority)
 
 
 # Wales:
@@ -96,37 +103,37 @@ df20.to_csv("checkpoint_2/processed/Road_Accident_Data_PROCESSED_20.csv", index=
 
 '''
 CSV size before:  (307973, 21)
-CSV size after:  (300495, 20)
+CSV size after:  (300495, 18)
 
-  accident_index accident_date day_of_week          junction_control  ...      time urban_or_rural_area  weather_conditions           vehicle_type
-0  200901BS70001    2021-01-01    Thursday  Give way or uncontrolled  ...  15:11:00               Urban  Fine no high winds                    Car
-1  200901BS70002    2021-01-05      Monday  Give way or uncontrolled  ...  10:59:00               Urban  Fine no high winds  Taxi/Private hire car
-2  200901BS70003    2021-01-04      Sunday  Give way or uncontrolled  ...  14:19:00               Urban  Fine no high winds  Taxi/Private hire car
-3  200901BS70004    2021-01-05      Monday       Auto traffic signal  ...  08:10:00               Urban               Other  Motorcycle over 500cc
-4  200901BS70005    2021-01-06     Tuesday       Auto traffic signal  ...  17:25:00               Urban  Fine no high winds                    Car
+  accident_date day_of_week          junction_detail accident_severity  ...      time urban_or_rural_area  weather_conditions           vehicle_type
+0    2021-01-01    Thursday  T or staggered junction           Serious  ...  15:11:00               Urban  Fine no high winds                    Car
+1    2021-01-05      Monday               Crossroads           Serious  ...  10:59:00               Urban  Fine no high winds  Taxi/Private hire car
+2    2021-01-04      Sunday  T or staggered junction            Slight  ...  14:19:00               Urban  Fine no high winds  Taxi/Private hire car
+3    2021-01-05      Monday  T or staggered junction           Serious  ...  08:10:00               Urban               Other  Motorcycle over 500cc
+4    2021-01-06     Tuesday               Crossroads           Serious  ...  17:25:00               Urban  Fine no high winds                    Car
 
-[5 rows x 20 columns]
+[5 rows x 18 columns]
 
-['accident_index' 'accident_date' 'day_of_week' 'junction_control'
- 'junction_detail' 'accident_severity' 'latitude' 'light_conditions'
- 'local_authority_(district)' 'longitude' 'number_of_casualties'
- 'number_of_vehicles' 'police_force' 'road_surface_conditions' 'road_type'
- 'speed_limit' 'time' 'urban_or_rural_area' 'weather_conditions'
- 'vehicle_type']
+['accident_date' 'day_of_week' 'junction_detail' 'accident_severity'
+ 'latitude' 'light_conditions' 'local_authority' 'longitude'
+ 'number_of_casualties' 'number_of_vehicles' 'police_force'
+ 'road_surface_conditions' 'road_type' 'speed_limit' 'time'
+ 'urban_or_rural_area' 'weather_conditions' 'vehicle_type']
 
-Number of duplicates: 1
+Number of duplicates: 5
 Number of duplicates: 0
 
  country
-England     275784
+England     275781
 Wales        13176
-Scotland     11534
+Scotland     11533
 Name: count, dtype: int64
+
 Empty DataFrame
 
-Columns: [accident_index, accident_date, day_of_week, junction_control, junction_detail, accident_severity, latitude, light_conditions, local_authority_(district), longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country]
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country]
 Index: []
 
-CSV size 80:  (240395, 21)
-CSV size 20:  (60099, 21)
+CSV size 80:  (240392, 19)
+CSV size 20:  (60098, 19)
 '''

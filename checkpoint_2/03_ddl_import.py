@@ -9,7 +9,7 @@ from typing import List, Dict, Any
 
 
 # Putanja do predprocesirane CSV datoteke
-CSV_FILE_PATH = "checkpoint_2/processed/Road_Accident_Data_PROCESSED.csv"
+CSV_FILE_PATH = "checkpoint_2/processed/Road_Accident_Data_PROCESSED_20.csv"
 
 # Učitavanje CSV datoteke u dataframe
 df = pd.read_csv(CSV_FILE_PATH, delimiter=',')
@@ -47,10 +47,10 @@ class JunctionDetail(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(45), nullable=False, unique=True)
 
-class JunctionControl(Base):
-    __tablename__ = 'junction_control'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(75), nullable=False, unique=True)
+# class JunctionControl(Base):
+#     __tablename__ = 'junction_control'
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     name = Column(String(75), nullable=False, unique=True)
 
 class RoadType(Base):
     __tablename__ = 'road_type'
@@ -89,7 +89,7 @@ class Accident(Base):
     accident_severity  = Column(String(45), nullable=False)
     speed_limit = Column(Integer, nullable=False)
     local_authority_fk = Column(Integer, ForeignKey('local_authority.id'))
-    junction_control_fk = Column(Integer, ForeignKey('junction_control.id'))
+    # junction_control_fk = Column(Integer, ForeignKey('junction_control.id'))
     road_type_fk = Column(Integer, ForeignKey('road_type.id'))
     junction_detail_fk = Column(Integer, ForeignKey('junction_detail.id'))
     vehicle_type_fk = Column(Integer, ForeignKey('vehicle_type.id'))
@@ -159,12 +159,12 @@ junction_detail_map = {pl.name: pl.id for pl in session.query(JunctionDetail).al
 
 
 # **5. Umetanje junction_control**
-junction_control = df[['junction_control']].drop_duplicates().rename(columns={'junction_control': 'name'}) 
-junction_control_list = [{str(k): v for k, v in row.items()} for row in junction_control.to_dict(orient="records")] 
-session.execute(insert(JunctionControl), junction_control_list) 
-session.commit()
+# junction_control = df[['junction_control']].drop_duplicates().rename(columns={'junction_control': 'name'}) 
+# junction_control_list = [{str(k): v for k, v in row.items()} for row in junction_control.to_dict(orient="records")] 
+# session.execute(insert(JunctionControl), junction_control_list) 
+# session.commit()
 
-junction_control_map = {pl.name: pl.id for pl in session.query(JunctionControl).all()} 
+# junction_control_map = {pl.name: pl.id for pl in session.query(JunctionControl).all()} 
 
 
 
@@ -202,9 +202,9 @@ police_force_map = {pt.name: pt.id for pt in session.query(PoliceForce).all()}
 
 
 # local_authority_(district)
-local_authority= df[['local_authority_(district)', 'police_force']].drop_duplicates()
+local_authority= df[['local_authority', 'police_force']].drop_duplicates()
 local_authority['police_force_fk'] = local_authority['police_force'].map(police_force_map)
-local_authority= local_authority.rename(columns={'local_authority_(district)': 'name'}).drop(columns='police_force')
+local_authority= local_authority.rename(columns={'local_authority': 'name'}).drop(columns='police_force')
 local_authority_list= [{str(k): v for k, v in row.items()} for row in local_authority.to_dict(orient="records")] 
 
 session.execute(insert(LocalAuthority), local_authority_list) 
@@ -217,8 +217,9 @@ local_authority_map= {d.name: d.id for d in session.query(LocalAuthority).all()}
 accident_data=df[[ 'accident_date', 'day_of_week', 'time', 
     'latitude', 'longitude', 'urban_or_rural_area', 'number_of_casualties', 
     'number_of_vehicles', 'accident_severity', 'speed_limit',
-    'junction_control', 'junction_detail', 'light_conditions', 
-    'local_authority_(district)', 'road_surface_conditions', 
+    # 'junction_control', 
+    'junction_detail', 'light_conditions', 
+    'local_authority', 'road_surface_conditions', 
     'road_type', 'weather_conditions', 'vehicle_type']].copy()
 
 '''
@@ -226,7 +227,7 @@ accident_data=df[[ 'accident_date', 'day_of_week', 'time',
  'junction_control',
  'junction_detail', 
  'light_conditions', 
- 'local_authority_(district)', 
+ 'local_authority', 
  'road_surface_conditions', 
  'road_type', 
  'weather_conditions', 
@@ -234,8 +235,8 @@ accident_data=df[[ 'accident_date', 'day_of_week', 'time',
 
  '''
 
-accident_data['local_authority_fk']= accident_data['local_authority_(district)'].map(local_authority_map)
-accident_data['junction_control_fk']= accident_data['junction_control'].map(junction_control_map)
+accident_data['local_authority_fk']= accident_data['local_authority'].map(local_authority_map)
+# accident_data['junction_control_fk']= accident_data['junction_control'].map(junction_control_map)
 accident_data['road_type_fk']= accident_data['road_type'].map(road_type_map)
 accident_data['junction_detail_fk']= accident_data['junction_detail'].map(junction_detail_map)
 accident_data['vehicle_type_fk']= accident_data['vehicle_type'].map(vehicle_type_map)
@@ -244,10 +245,10 @@ accident_data['weather_conditions_fk']= accident_data['weather_conditions'].map(
 accident_data['light_conditions_fk']= accident_data['light_conditions'].map(light_conditions_map)
 
 accident_list= [{str(k): v for k, v in row.items()} for row in accident_data.drop(columns=[
-        'junction_control',
+        # 'junction_control',
         'junction_detail', 
         'light_conditions', 
-        'local_authority_(district)', 
+        'local_authority', 
         'road_surface_conditions', 
         'road_type', 
         'weather_conditions', 
@@ -261,14 +262,17 @@ print("Data imported successfully!")
 
 '''
 OUTPUT:
-CSV size: (62345, 11)
-  retailer_country order_method_type retailer_type          product_line  ...  quarter   revenue  quantity gross_margin
-0           Canada               Web  Sports Store  Personal Accessories  ...  Q2 2012  11520.00        72     0.537500
-1           Canada               Web  Sports Store  Personal Accessories  ...  Q2 2012   8249.15        91     0.379702
-2           Canada               Web  Sports Store  Personal Accessories  ...  Q2 2012  20080.59       183     0.284152
-3           Canada               Web  Sports Store  Personal Accessories  ...  Q2 2012   1460.00         4     0.350822
-4           Canada               Web  Sports Store  Personal Accessories  ...  Q2 2012  11424.00        48     0.347059
 
-[5 rows x 11 columns]
+CSV size: (60098, 19)
+
+  accident_date day_of_week                      junction_detail accident_severity  ...  urban_or_rural_area  weather_conditions vehicle_type  country
+0    2022-08-15      Sunday  Not at junction or within 20 metres            Slight  ...                Urban  Fine no high winds          Car  England
+1    2021-08-20    Thursday  Not at junction or within 20 metres            Slight  ...                Rural  Fine no high winds          Car  England
+2    2021-12-17    Thursday                       Other junction            Slight  ...                Urban  Fine no high winds          Car  England
+3    2021-07-14     Tuesday              T or staggered junction            Slight  ...                Urban  Fine no high winds          Car  England
+4    2022-01-15      Friday  Not at junction or within 20 metres            Slight  ...                Rural  Fine no high winds          Car  England
+
+[5 rows x 19 columns]
+
 Data imported successfully!
 '''
