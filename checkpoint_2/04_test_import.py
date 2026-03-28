@@ -11,7 +11,7 @@ class TestAccidentsDatabase(unittest.TestCase):
         self.connection = self.engine.connect()
 
         # Učitavanje CSV datoteke
-        self.df = pd.read_csv("checkpoint_2/processed/Road_Accident_Data_PROCESSED_20.csv")
+        self.df = pd.read_csv("checkpoint_2/processed/Road_Accident_Data_PROCESSED.csv")
 
         # Dohvati podatke iz baze sa svim JOIN-ovima FK tablica
         query = """
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 '''
 ..
 ----------------------------------------------------------------------
-Ran 2 tests in 7.252s
+Ran 2 tests in 32.459s
 
 OK
 '''

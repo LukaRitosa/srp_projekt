@@ -9,7 +9,7 @@ from typing import List, Dict, Any
 
 
 # Putanja do predprocesirane CSV datoteke
-CSV_FILE_PATH = "checkpoint_2/processed/Road_Accident_Data_PROCESSED_20.csv"
+CSV_FILE_PATH = "checkpoint_2/processed/Road_Accident_Data_PROCESSED.csv"
 
 # Učitavanje CSV datoteke u dataframe
 df = pd.read_csv(CSV_FILE_PATH, delimiter=',')
@@ -263,16 +263,14 @@ print("Data imported successfully!")
 '''
 OUTPUT:
 
-CSV size: (60098, 19)
-
-  accident_date day_of_week                      junction_detail accident_severity  ...  urban_or_rural_area  weather_conditions vehicle_type  country
-0    2022-08-15      Sunday  Not at junction or within 20 metres            Slight  ...                Urban  Fine no high winds          Car  England
-1    2021-08-20    Thursday  Not at junction or within 20 metres            Slight  ...                Rural  Fine no high winds          Car  England
-2    2021-12-17    Thursday                       Other junction            Slight  ...                Urban  Fine no high winds          Car  England
-3    2021-07-14     Tuesday              T or staggered junction            Slight  ...                Urban  Fine no high winds          Car  England
-4    2022-01-15      Friday  Not at junction or within 20 metres            Slight  ...                Rural  Fine no high winds          Car  England
+CSV size: (240392, 19)
+  accident_date day_of_week          junction_detail accident_severity  ...  urban_or_rural_area  weather_conditions           vehicle_type  country
+0    2021-01-01    Thursday  T or staggered junction           Serious  ...                Urban  Fine no high winds                    Car  England
+1    2021-01-04      Sunday  T or staggered junction            Slight  ...                Urban  Fine no high winds  Taxi/Private hire car  England
+2    2021-01-05      Monday  T or staggered junction           Serious  ...                Urban               Other  Motorcycle over 500cc  England
+3    2021-01-01    Thursday  T or staggered junction            Slight  ...                Urban  Fine no high winds                    Car  England
+4    2021-01-02      Friday               Crossroads            Slight  ...                Urban  Fine no high winds                    Car  England
 
 [5 rows x 19 columns]
-
 Data imported successfully!
 '''
