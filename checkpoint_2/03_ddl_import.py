@@ -77,11 +77,16 @@ class LocalAuthority(Base):
     name = Column(String(75), nullable=False, unique=True)
     police_force_fk = Column(Integer, ForeignKey('police_force.id'))
 
+class DayOfWeek(Base):
+    __tablename__= 'day_of_week'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    day_of_week = Column(String(45), nullable=False, unique=True)
+
 class AccidentDate(Base):
     __tablename__= 'accident_date'
     id = Column(Integer, primary_key=True, autoincrement=True)
     date= Column(Date, nullable=False, unique=True)
-    day_of_week = Column(String(45), nullable=False)
+    day_of_week_fk = Column(Integer, ForeignKey('day_of_week.id'))
 
 class AccidentTime(Base):
     __tablename__= 'accident_time'
@@ -228,9 +233,19 @@ session.commit()
 local_authority_map= {d.name: d.id for d in session.query(LocalAuthority).all()}
 
 
+# day of week
+day_of_week= df[['day_of_week']].drop_duplicates()
+day_of_week_list= [{str(k): v for k, v in row.items()} for row in day_of_week.to_dict(orient="records")] 
+
+session.execute(insert(DayOfWeek), day_of_week_list) 
+session.commit()
+
+day_of_week_map= {d.day_of_week: d.id for d in session.query(DayOfWeek).all()}
+
 # date
 accident_date= df[['accident_date', 'day_of_week']].drop_duplicates().rename(columns={'accident_date': 'date'})
-accident_date_list= [{str(k): v for k, v in row.items()} for row in accident_date.to_dict(orient="records")] 
+accident_date['day_of_week_fk']= accident_date['day_of_week'].map(day_of_week_map)
+accident_date_list= [{str(k): v for k, v in row.items()} for row in accident_date.drop(columns='day_of_week').to_dict(orient="records")]
 
 session.execute(insert(AccidentDate), accident_date_list) 
 session.commit()
@@ -248,7 +263,9 @@ session.commit()
 accident_time_map= {d.time: d.id for d in session.query(AccidentTime).all()}
 
 # Accident
-accident_data=df[[ 'accident_date', 'day_of_week', 'time', 
+accident_data=df[[ 'accident_date', 
+    # 'day_of_week', 
+    'time', 
     'latitude', 'longitude', 'urban_or_rural_area', 'number_of_casualties', 
     'number_of_vehicles', 'accident_severity', 'speed_limit',
     # 'junction_control', 
@@ -290,8 +307,8 @@ accident_list= [{str(k): v for k, v in row.items()} for row in accident_data.dro
         'weather_conditions', 
         'vehicle_type',
         'accident_date',
-        'time',
-        'day_of_week'
+        'time'
+        # 'day_of_week'
     ]).to_dict(orient="records")]
 
 session.execute(insert(Accident), accident_list)
