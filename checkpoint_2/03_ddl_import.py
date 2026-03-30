@@ -16,6 +16,8 @@ df = pd.read_csv(CSV_FILE_PATH, delimiter=',')
 print(f"CSV size: {df.shape}")  # Print dataset size
 print(df.head())  # Preview first few rows
 
+df['accident_date'] = pd.to_datetime(df['accident_date']).dt.date
+
 # Database Connection
 Base = declarative_base()
 
@@ -75,12 +77,23 @@ class LocalAuthority(Base):
     name = Column(String(75), nullable=False, unique=True)
     police_force_fk = Column(Integer, ForeignKey('police_force.id'))
 
+class AccidentDate(Base):
+    __tablename__= 'accident_date'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    date= Column(Date, nullable=False, unique=True)
+    day_of_week = Column(String(45), nullable=False)
+
+class AccidentTime(Base):
+    __tablename__= 'accident_time'
+    id= Column(Integer, primary_key=True, autoincrement=True)
+    time= Column(String(45), nullable=False, unique=True)
+
 class Accident(Base):
     __tablename__ = 'accident'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    accident_date = Column(Date, nullable=False)
-    day_of_week = Column(String(45), nullable=False)
-    time = Column(String(45), nullable=False)
+    # accident_date = Column(Date, nullable=False)
+    # day_of_week = Column(String(45), nullable=False)
+    # time = Column(String(45), nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     urban_or_rural_area = Column(String(45), nullable=False)
@@ -88,6 +101,8 @@ class Accident(Base):
     number_of_vehicles = Column(Integer, nullable=False)
     accident_severity  = Column(String(45), nullable=False)
     speed_limit = Column(Integer, nullable=False)
+    accident_date_fk= Column(Integer, ForeignKey('accident_date.id'))
+    accident_time_fk= Column(Integer, ForeignKey('accident_time.id'))
     local_authority_fk = Column(Integer, ForeignKey('local_authority.id'))
     # junction_control_fk = Column(Integer, ForeignKey('junction_control.id'))
     road_type_fk = Column(Integer, ForeignKey('road_type.id'))
@@ -213,6 +228,25 @@ session.commit()
 local_authority_map= {d.name: d.id for d in session.query(LocalAuthority).all()}
 
 
+# date
+accident_date= df[['accident_date', 'day_of_week']].drop_duplicates().rename(columns={'accident_date': 'date'})
+accident_date_list= [{str(k): v for k, v in row.items()} for row in accident_date.to_dict(orient="records")] 
+
+session.execute(insert(AccidentDate), accident_date_list) 
+session.commit()
+
+accident_date_map= {d.date: d.id for d in session.query(AccidentDate).all()}
+
+
+# time
+accident_time= df[['time']].drop_duplicates()
+accident_time_list= [{str(k): v for k, v in row.items()} for row in accident_time.to_dict(orient="records")] 
+
+session.execute(insert(AccidentTime), accident_time_list) 
+session.commit()
+
+accident_time_map= {d.time: d.id for d in session.query(AccidentTime).all()}
+
 # Accident
 accident_data=df[[ 'accident_date', 'day_of_week', 'time', 
     'latitude', 'longitude', 'urban_or_rural_area', 'number_of_casualties', 
@@ -235,6 +269,8 @@ accident_data=df[[ 'accident_date', 'day_of_week', 'time',
 
  '''
 
+accident_data['accident_date_fk']= accident_data['accident_date'].map(accident_date_map)
+accident_data['accident_time_fk']= accident_data['time'].map(accident_time_map)
 accident_data['local_authority_fk']= accident_data['local_authority'].map(local_authority_map)
 # accident_data['junction_control_fk']= accident_data['junction_control'].map(junction_control_map)
 accident_data['road_type_fk']= accident_data['road_type'].map(road_type_map)
@@ -252,7 +288,10 @@ accident_list= [{str(k): v for k, v in row.items()} for row in accident_data.dro
         'road_surface_conditions', 
         'road_type', 
         'weather_conditions', 
-        'vehicle_type'
+        'vehicle_type',
+        'accident_date',
+        'time',
+        'day_of_week'
     ]).to_dict(orient="records")]
 
 session.execute(insert(Accident), accident_list)

@@ -15,7 +15,7 @@ class TestAccidentsDatabase(unittest.TestCase):
 
         # Dohvati podatke iz baze sa svim JOIN-ovima FK tablica
         query = """
-        SELECT a.accident_date, a.day_of_week, a.time,
+        SELECT ad.date AS accident_date, ad.day_of_week, at.time,
                a.latitude, a.longitude, a.urban_or_rural_area,
                a.number_of_casualties, a.number_of_vehicles,
                a.accident_severity, a.speed_limit,
@@ -27,6 +27,8 @@ class TestAccidentsDatabase(unittest.TestCase):
                rt.name AS road_type,
                la.name AS local_authority
         FROM accident a
+        JOIN accident_date ad ON a.accident_date_fk = ad.id
+        JOIN accident_time at ON a.accident_time_fk = at.id
         JOIN light_conditions lc ON a.light_conditions_fk = lc.id
         JOIN weather_conditions wc ON a.weather_conditions_fk = wc.id
         JOIN road_surface_conditions rsc ON a.road_surface_conditions_fk = rsc.id
@@ -82,7 +84,7 @@ if __name__ == '__main__':
 '''
 ..
 ----------------------------------------------------------------------
-Ran 2 tests in 32.459s
+Ran 2 tests in 14.027s
 
 OK
 '''
