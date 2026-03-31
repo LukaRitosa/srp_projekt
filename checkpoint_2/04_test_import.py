@@ -25,9 +25,11 @@ class TestAccidentsDatabase(unittest.TestCase):
                vt.name AS vehicle_type,
                jd.name AS junction_detail,
                rt.name AS road_type,
-               la.name AS local_authority
+               la.name AS local_authority,
+               s.season 
         FROM accident a
         JOIN accident_date ad ON a.accident_date_fk = ad.id
+        JOIN season s ON ad.season_fk = s.id
         JOIN day_of_week dw ON ad.day_of_week_fk = dw.id
         JOIN accident_time at ON a.accident_time_fk = at.id
         JOIN light_conditions lc ON a.light_conditions_fk = lc.id
@@ -51,7 +53,7 @@ class TestAccidentsDatabase(unittest.TestCase):
             'accident_severity', 'speed_limit', 'light_conditions', 'weather_conditions',
             'road_surface_conditions', 'vehicle_type', 'junction_detail',
             # 'junction_control', 
-            'road_type', 'local_authority'
+            'road_type', 'local_authority', 'season'
         ]
         self.assertListEqual(csv_columns, list(self.db_df.columns))
 
@@ -64,7 +66,7 @@ class TestAccidentsDatabase(unittest.TestCase):
                         'accident_severity', 'speed_limit', 'light_conditions', 'weather_conditions',
                         'road_surface_conditions', 'vehicle_type', 'junction_detail',
                         # 'junction_control', 
-                        'road_type', 'local_authority']]
+                        'road_type', 'local_authority', 'season']]
 
         df_copy = df_copy.reset_index(drop=True)
         db_df_reset = self.db_df.reset_index(drop=True)
@@ -85,7 +87,7 @@ if __name__ == '__main__':
 '''
 ..
 ----------------------------------------------------------------------
-Ran 2 tests in 14.027s
+Ran 2 tests in 18.627s
 
 OK
 '''

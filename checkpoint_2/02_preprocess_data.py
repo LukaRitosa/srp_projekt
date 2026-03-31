@@ -89,6 +89,31 @@ df["country"]= df["police_force"].apply(map_country)
 print(df["country"].value_counts())
 print(df[df["country"].isna()])
 
+
+
+def map_season(date):
+    year= date.year
+
+    spring = date(year, 3, 20)
+    summer = date(year, 6, 21)
+    autumn = date(year, 9, 23)
+    winter = date(year, 12, 21)
+
+    if spring <= date < summer:
+        return "Spring"
+    elif summer <= date < autumn:
+        return "Summer"
+    elif autumn <= date < winter:
+        return "Autumn"
+    else:
+        return "Winter"
+
+df["season"] = df["accident_date"].apply(map_season)
+
+
+print(df["season"].value_counts())
+print(df[df["season"].isna()])
+
 # Random dijeljenje skupa podataka na dva dijela 80:20 (trebat će nam kasnije)
 df20 = df.sample(frac=0.2, random_state=1)
 df = df.drop(df20.index)
@@ -123,17 +148,27 @@ CSV size after:  (300495, 18)
 Number of duplicates: 5
 Number of duplicates: 0
 
- country
+country
 England     275781
 Wales        13176
 Scotland     11533
 Name: count, dtype: int64
 
 Empty DataFrame
-
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country]
 Index: []
 
-CSV size 80:  (240392, 19)
-CSV size 20:  (60098, 19)
+season
+Autumn    80270
+Summer    79373
+Spring    75785
+Winter    65062
+Name: count, dtype: int64
+
+Empty DataFrame
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, season]        
+Index: []
+
+CSV size 80:  (240392, 20)
+CSV size 20:  (60098, 20)
 '''
