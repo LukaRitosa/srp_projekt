@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import date 
 
 # Određivanje putanje do CSV datoteke
 CSV_FILE_PATH = "data/Road Accident Data.csv"
@@ -12,7 +13,7 @@ df= df.drop(columns="Accident_Index")
 df= df.drop(columns="Junction_Control")
 
 df["Accident Date"]= pd.to_datetime(df["Accident Date"], format="%m/%d/%Y")
-df["Time"]= pd.to_datetime(df["Time"], format="%H:%M").dt.time
+df["Time"]= pd.to_datetime(df["Time"], format="%H:%M")
 
 df = df.dropna() # Brisanje redaka s nedostajućim vrijednostima
 df.columns = df.columns.str.lower() # Pretvori sve nazive stupaca u mala slova
@@ -91,19 +92,21 @@ print(df[df["country"].isna()])
 
 
 
-def map_season(date):
-    year= date.year
+def map_season(d):
+    year= d.year
 
     spring = date(year, 3, 20)
     summer = date(year, 6, 21)
     autumn = date(year, 9, 23)
     winter = date(year, 12, 21)
 
-    if spring <= date < summer:
+    d= d.date()
+
+    if spring <= d < summer:
         return "Spring"
-    elif summer <= date < autumn:
+    elif summer <= d < autumn:
         return "Summer"
-    elif autumn <= date < winter:
+    elif autumn <= d < winter:
         return "Autumn"
     else:
         return "Winter"
@@ -113,6 +116,31 @@ df["season"] = df["accident_date"].apply(map_season)
 
 print(df["season"].value_counts())
 print(df[df["season"].isna()])
+
+
+
+
+def map_part_of_day(time):
+    hour= time.hour
+
+    if 5 <= hour < 12:
+        return "Morning"
+    elif 12 <= hour < 17:
+        return "Afternoon"
+    elif 17 <= hour < 21:
+        return "Evening"
+    else:
+        return "Night"
+    
+df["part_of_day"]= df["time"].apply(map_part_of_day)
+
+
+print(df["part_of_day"].value_counts())
+print(df[df["part_of_day"].isna()])
+
+
+df['time'] = df['time'].dt.time
+
 
 # Random dijeljenje skupa podataka na dva dijela 80:20 (trebat će nam kasnije)
 df20 = df.sample(frac=0.2, random_state=1)
@@ -130,14 +158,29 @@ df20.to_csv("checkpoint_2/processed/Road_Accident_Data_PROCESSED_20.csv", index=
 CSV size before:  (307973, 21)
 CSV size after:  (300495, 18)
 
-  accident_date day_of_week          junction_detail accident_severity  ...      time urban_or_rural_area  weather_conditions           vehicle_type
-0    2021-01-01    Thursday  T or staggered junction           Serious  ...  15:11:00               Urban  Fine no high winds                    Car
-1    2021-01-05      Monday               Crossroads           Serious  ...  10:59:00               Urban  Fine no high winds  Taxi/Private hire car
-2    2021-01-04      Sunday  T or staggered junction            Slight  ...  14:19:00               Urban  Fine no high winds  Taxi/Private hire car
-3    2021-01-05      Monday  T or staggered junction           Serious  ...  08:10:00               Urban               Other  Motorcycle over 500cc
-4    2021-01-06     Tuesday               Crossroads           Serious  ...  17:25:00               Urban  Fine no high winds                    Car
+  accident_date day_of_week  ...  weather_conditions           vehicle_type
+0    2021-01-01    Thursday  ...  Fine no high winds                    Car
+1    2021-01-05      Monday  ...  Fine no high winds  Taxi/Private hire car
+2    2021-01-04      Sunday  ...  Fine no high winds  Taxi/Private hire car
+3    2021-01-05      Monday  ...               Other  Motorcycle over 500cc
+4    2021-01-06     Tuesday  ...  Fine no high winds                    Car
 
 [5 rows x 18 columns]
+
+
+CSV size before:  (307973, 21)
+CSV size after:  (300495, 18)
+
+
+  accident_date day_of_week          junction_detail accident_severity  ...                time urban_or_rural_area  weather_conditions           vehicle_type
+0    2021-01-01    Thursday  T or staggered junction           Serious  ... 1900-01-01 15:11:00               Urban  Fine no high winds                    Car
+1    2021-01-05      Monday               Crossroads           Serious  ... 1900-01-01 10:59:00               Urban  Fine no high winds  Taxi/Private hire car
+2    2021-01-04      Sunday  T or staggered junction            Slight  ... 1900-01-01 14:19:00               Urban  Fine no high winds  Taxi/Private hire car
+3    2021-01-05      Monday  T or staggered junction           Serious  ... 1900-01-01 08:10:00               Urban               Other  Motorcycle over 500cc
+4    2021-01-06     Tuesday               Crossroads           Serious  ... 1900-01-01 17:25:00               Urban  Fine no high winds                    Car  
+
+[5 rows x 18 columns]
+
 
 ['accident_date' 'day_of_week' 'junction_detail' 'accident_severity'
  'latitude' 'light_conditions' 'local_authority' 'longitude'
@@ -145,8 +188,10 @@ CSV size after:  (300495, 18)
  'road_surface_conditions' 'road_type' 'speed_limit' 'time'
  'urban_or_rural_area' 'weather_conditions' 'vehicle_type']
 
+
 Number of duplicates: 5
 Number of duplicates: 0
+
 
 country
 England     275781
@@ -154,9 +199,11 @@ Wales        13176
 Scotland     11533
 Name: count, dtype: int64
 
+
 Empty DataFrame
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country]
 Index: []
+
 
 season
 Autumn    80270
@@ -165,10 +212,23 @@ Spring    75785
 Winter    65062
 Name: count, dtype: int64
 
+
 Empty DataFrame
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, season]        
 Index: []
 
-CSV size 80:  (240392, 20)
-CSV size 20:  (60098, 20)
+
+part_of_day
+Afternoon    102812
+Morning       86390
+Evening       73409
+Night         37879
+Name: count, dtype: int64
+Empty DataFrame
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, season, part_of_day]
+Index: []
+
+
+CSV size 80:  (240392, 21)
+CSV size 20:  (60098, 21)
 '''

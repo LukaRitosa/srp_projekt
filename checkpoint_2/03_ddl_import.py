@@ -94,10 +94,17 @@ class AccidentDate(Base):
     day_of_week_fk = Column(Integer, ForeignKey('day_of_week.id'))
     season_fk= Column(Integer, ForeignKey('season.id'))
 
+class PartOfDay(Base):
+    __tablename__= 'part_of_day'
+    id= Column(Integer, primary_key=True, autoincrement=True)
+    name= Column(String(45), nullable=False, unique=True)
+
+
 class AccidentTime(Base):
     __tablename__= 'accident_time'
     id= Column(Integer, primary_key=True, autoincrement=True)
     time= Column(String(45), nullable=False, unique=True)
+    part_of_day_fk= Column(Integer, ForeignKey('part_of_day.id'))
 
 class Accident(Base):
     __tablename__ = 'accident'
@@ -270,10 +277,19 @@ session.commit()
 
 accident_date_map= {d.date: d.id for d in session.query(AccidentDate).all()}
 
+# dio dana
+part_of_day= df[['part_of_day']].drop_duplicates().rename(columns={'part_of_day': 'name'})
+part_of_day_list= [{str(k): v for k, v in row.items()} for row in part_of_day.to_dict(orient="records")] 
+
+session.execute(insert(PartOfDay), part_of_day_list) 
+session.commit()
+
+part_of_day_map= {d.name: d.id for d in session.query(PartOfDay).all()}
 
 # time
-accident_time= df[['time']].drop_duplicates()
-accident_time_list= [{str(k): v for k, v in row.items()} for row in accident_time.to_dict(orient="records")] 
+accident_time= df[['time', 'part_of_day']].drop_duplicates()
+accident_time['part_of_day_fk']= accident_time['part_of_day'].map(part_of_day_map)
+accident_time_list= [{str(k): v for k, v in row.items()} for row in accident_time.drop(columns= 'part_of_day').to_dict(orient="records")] 
 
 session.execute(insert(AccidentTime), accident_time_list) 
 session.commit()
@@ -337,14 +353,14 @@ print("Data imported successfully!")
 '''
 OUTPUT:
 
-CSV size: (240392, 20)
-  accident_date day_of_week          junction_detail accident_severity  ...  weather_conditions           vehicle_type  country  season
-0    2021-01-01    Thursday  T or staggered junction           Serious  ...  Fine no high winds                    Car  England  Winter
-1    2021-01-04      Sunday  T or staggered junction            Slight  ...  Fine no high winds  Taxi/Private hire car  England  Winter
-2    2021-01-05      Monday  T or staggered junction           Serious  ...               Other  Motorcycle over 500cc  England  Winter
-3    2021-01-01    Thursday  T or staggered junction            Slight  ...  Fine no high winds                    Car  England  Winter
-4    2021-01-02      Friday               Crossroads            Slight  ...  Fine no high winds                    Car  England  Winter
+CSV size: (240392, 21)
+  accident_date day_of_week          junction_detail accident_severity   latitude  ...  weather_conditions           vehicle_type  country  season  part_of_day
+0    2021-01-01    Thursday  T or staggered junction           Serious  51.512273  ...  Fine no high winds                    Car  England  Winter    Afternoon 
+1    2021-01-04      Sunday  T or staggered junction            Slight  51.486668  ...  Fine no high winds  Taxi/Private hire car  England  Winter    Afternoon 
+2    2021-01-05      Monday  T or staggered junction           Serious  51.507804  ...               Other  Motorcycle over 500cc  England  Winter      Morning 
+3    2021-01-01    Thursday  T or staggered junction            Slight  51.493415  ...  Fine no high winds                    Car  England  Winter      Morning 
+4    2021-01-02      Friday               Crossroads            Slight  51.491957  ...  Fine no high winds                    Car  England  Winter    Afternoon 
 
-[5 rows x 20 columns]
+[5 rows x 21 columns]
 Data imported successfully!
 '''

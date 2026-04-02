@@ -15,7 +15,7 @@ class TestAccidentsDatabase(unittest.TestCase):
 
         # Dohvati podatke iz baze sa svim JOIN-ovima FK tablica
         query = """
-        SELECT ad.date AS accident_date, dw.day_of_week, at.time,
+        SELECT ad.date AS accident_date, dw.day_of_week, at.time, pd.name AS part_of_day,
                a.latitude, a.longitude, a.urban_or_rural_area,
                a.number_of_casualties, a.number_of_vehicles,
                a.accident_severity, a.speed_limit,
@@ -32,6 +32,7 @@ class TestAccidentsDatabase(unittest.TestCase):
         JOIN season s ON ad.season_fk = s.id
         JOIN day_of_week dw ON ad.day_of_week_fk = dw.id
         JOIN accident_time at ON a.accident_time_fk = at.id
+        JOIN part_of_day pd ON at.part_of_day_fk = pd.id
         JOIN light_conditions lc ON a.light_conditions_fk = lc.id
         JOIN weather_conditions wc ON a.weather_conditions_fk = wc.id
         JOIN road_surface_conditions rsc ON a.road_surface_conditions_fk = rsc.id
@@ -48,7 +49,7 @@ class TestAccidentsDatabase(unittest.TestCase):
     # Testiranje stupaca
     def test_columns(self):
         csv_columns = [
-            'accident_date', 'day_of_week', 'time', 'latitude', 'longitude',
+            'accident_date', 'day_of_week', 'time', 'part_of_day', 'latitude', 'longitude',
             'urban_or_rural_area', 'number_of_casualties', 'number_of_vehicles',
             'accident_severity', 'speed_limit', 'light_conditions', 'weather_conditions',
             'road_surface_conditions', 'vehicle_type', 'junction_detail',
@@ -61,7 +62,7 @@ class TestAccidentsDatabase(unittest.TestCase):
     def test_dataframes(self):
         df_copy = self.df.copy()
 
-        df_copy = df_copy[['accident_date', 'day_of_week', 'time', 'latitude', 'longitude',
+        df_copy = df_copy[['accident_date', 'day_of_week', 'time', 'part_of_day', 'latitude', 'longitude',
                         'urban_or_rural_area', 'number_of_casualties', 'number_of_vehicles',
                         'accident_severity', 'speed_limit', 'light_conditions', 'weather_conditions',
                         'road_surface_conditions', 'vehicle_type', 'junction_detail',
@@ -87,7 +88,7 @@ if __name__ == '__main__':
 '''
 ..
 ----------------------------------------------------------------------
-Ran 2 tests in 18.627s
+Ran 2 tests in 23.667s
 
 OK
 '''
