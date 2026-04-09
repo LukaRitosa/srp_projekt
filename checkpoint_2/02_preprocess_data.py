@@ -25,8 +25,6 @@ df = df.rename(columns={
     'local_authority_(district)': 'local_authority'
 })
 
-print("CSV size after: ", df.shape) # Ispis broja redaka i stupaca nakon predprocesiranja
-print(df.head()) # Ispis prvih redaka dataframe-a
 
 
 print(df.columns.values)
@@ -39,6 +37,10 @@ df = df.drop_duplicates()
 
 duplicates = df.duplicated().sum()
 print(f"Number of duplicates: {duplicates}") # Ispis broja duplikata
+
+
+print("CSV size after: ", df.shape) # Ispis broja redaka i stupaca nakon predprocesiranja
+print(df.head()) # Ispis prvih redaka dataframe-a
 
 fix_local_authority = {
     "Crewe and ntwich": "Crewe and Nantwich",
@@ -191,7 +193,13 @@ df20.to_csv("checkpoint_2/processed/Road_Accident_Data_PROCESSED_20.csv", index=
 
 '''
 CSV size before:  (307973, 21)
-CSV size after:  (298047, 18)
+
+
+Number of duplicates: 5
+Number of duplicates: 0
+
+
+CSV size after:  (298042, 18)
 
 
   accident_date day_of_week          junction_detail accident_severity  ...                time urban_or_rural_area  weather_conditions           vehicle_type
@@ -209,10 +217,6 @@ CSV size after:  (298047, 18)
  'number_of_casualties' 'number_of_vehicles' 'police_force'
  'road_surface_conditions' 'road_type' 'speed_limit' 'time'
  'urban_or_rural_area' 'weather_conditions' 'vehicle_type']
-
-
-Number of duplicates: 5
-Number of duplicates: 0
 
 
 country
