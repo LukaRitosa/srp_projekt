@@ -39,10 +39,28 @@ class RoadSurfaceConditions(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(75), nullable=False, unique=True)
 
+class VehicleCategory(Base):
+    __tablename__ = 'vehicle_category'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(75), nullable=False, unique=True)
+
+# class Wheels(Base):
+#     __tablename__ = 'wheels'
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     wheels = Column(Integer, nullable=False, unique=True)
+
+# class VehicleCapacity(Base):
+#     __tablename__ = 'vehicle_capacity'
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     capacity = Column(Integer, nullable=False, unique=True)
+
 class VehicleType(Base):
     __tablename__ = 'vehicle_type'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(75), nullable=False, unique=True)
+    wheels = Column(Integer, nullable=False)
+    capacity = Column(Integer, nullable=False)
+    category_fk=  Column(Integer, ForeignKey('vehicle_category.id'))
 
 class JunctionDetail(Base):
     __tablename__ = 'junction_detail'
@@ -173,9 +191,43 @@ session.commit()
 road_surface_conditions_map = {rt.name: rt.id for rt in session.query(RoadSurfaceConditions).all()} 
 
 
+# kategorija
+category= df[['category']].drop_duplicates().rename(columns={'category': 'name'})
+category_list= [{str(k): v for k, v in row.items()} for row in category.to_dict(orient="records")]
+
+
+session.execute(insert(VehicleCategory), category_list) 
+session.commit()
+
+category_map= {s.name: s.id for s in session.query(VehicleCategory).all()}
+
+# # kotači
+# wheels= df[['wheels']].drop_duplicates()
+# wheels_list= [{str(k): v for k, v in row.items()} for row in wheels.to_dict(orient="records")]
+
+
+# session.execute(insert(Wheels), wheels_list) 
+# session.commit()
+
+# wheels_map= {s.wheels: s.id for s in session.query(Wheels).all()}
+
+# # kapacitet
+# capacity= df[['capacity']].drop_duplicates()
+# capacity_list= [{str(k): v for k, v in row.items()} for row in capacity.to_dict(orient="records")]
+
+
+# session.execute(insert(VehicleCapacity), capacity_list) 
+# session.commit()
+
+# capacity_map= {s.capacity: s.id for s in session.query(VehicleCapacity).all()}
+
+
 # **4. Umetanje vehicle_type**
-vehicle_type = df[['vehicle_type']].drop_duplicates().rename(columns={'vehicle_type': 'name'}) 
-vehicle_type_list = [{str(k): v for k, v in row.items()} for row in vehicle_type.to_dict(orient="records")] 
+vehicle_type = df[['vehicle_type', 'category', 'capacity', 'wheels']].drop_duplicates().rename(columns={'vehicle_type': 'name'}) 
+
+vehicle_type['category_fk']= vehicle_type['category'].map(category_map)
+
+vehicle_type_list = [{str(k): v for k, v in row.items()} for row in vehicle_type.drop(columns='category').to_dict(orient="records")] 
 session.execute(insert(VehicleType), vehicle_type_list) # Bulk insert
 session.commit()
 
@@ -353,14 +405,14 @@ print("Data imported successfully!")
 '''
 OUTPUT:
 
-CSV size: (240392, 21)
-  accident_date day_of_week          junction_detail accident_severity   latitude  ...  weather_conditions           vehicle_type  country  season  part_of_day
-0    2021-01-01    Thursday  T or staggered junction           Serious  51.512273  ...  Fine no high winds                    Car  England  Winter    Afternoon 
-1    2021-01-04      Sunday  T or staggered junction            Slight  51.486668  ...  Fine no high winds  Taxi/Private hire car  England  Winter    Afternoon 
-2    2021-01-05      Monday  T or staggered junction           Serious  51.507804  ...               Other  Motorcycle over 500cc  England  Winter      Morning 
-3    2021-01-01    Thursday  T or staggered junction            Slight  51.493415  ...  Fine no high winds                    Car  England  Winter      Morning 
-4    2021-01-02      Friday               Crossroads            Slight  51.491957  ...  Fine no high winds                    Car  England  Winter    Afternoon 
+CSV size: (238434, 24)
+  accident_date day_of_week          junction_detail accident_severity   latitude light_conditions  ...  country  season  part_of_day  wheels capacity    category
+0    2021-01-01    Thursday  T or staggered junction           Serious  51.512273         Daylight  ...  England  Winter    Afternoon       4        5       light
+1    2021-01-04      Sunday  T or staggered junction            Slight  51.486668         Daylight  ...  England  Winter    Afternoon       4        4       light
+2    2021-01-05      Monday  T or staggered junction           Serious  51.507804         Daylight  ...  England  Winter      Morning       2        2  motorcycle
+3    2021-01-01    Thursday  T or staggered junction            Slight  51.493415         Daylight  ...  England  Winter      Morning       4        5       light
+4    2021-01-02      Friday               Crossroads            Slight  51.491957         Daylight  ...  England  Winter    Afternoon       4        5       light
 
-[5 rows x 21 columns]
+[5 rows x 24 columns]
 Data imported successfully!
 '''

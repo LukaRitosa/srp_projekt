@@ -23,6 +23,9 @@ class TestAccidentsDatabase(unittest.TestCase):
                wc.name AS weather_conditions,
                rsc.name AS road_surface_conditions,
                vt.name AS vehicle_type,
+               vt.wheels,
+               vt.capacity,
+               vc.name AS category,
                jd.name AS junction_detail,
                rt.name AS road_type,
                la.name AS local_authority,
@@ -37,6 +40,7 @@ class TestAccidentsDatabase(unittest.TestCase):
         JOIN weather_conditions wc ON a.weather_conditions_fk = wc.id
         JOIN road_surface_conditions rsc ON a.road_surface_conditions_fk = rsc.id
         JOIN vehicle_type vt ON a.vehicle_type_fk = vt.id
+        JOIN vehicle_category vc ON vt.category_fk = vc.id
         JOIN junction_detail jd ON a.junction_detail_fk = jd.id
         JOIN road_type rt ON a.road_type_fk = rt.id
         JOIN local_authority la ON a.local_authority_fk = la.id
@@ -52,7 +56,7 @@ class TestAccidentsDatabase(unittest.TestCase):
             'accident_date', 'day_of_week', 'time', 'part_of_day', 'latitude', 'longitude',
             'urban_or_rural_area', 'number_of_casualties', 'number_of_vehicles',
             'accident_severity', 'speed_limit', 'light_conditions', 'weather_conditions',
-            'road_surface_conditions', 'vehicle_type', 'junction_detail',
+            'road_surface_conditions', 'vehicle_type', 'wheels', 'capacity', 'category', 'junction_detail',
             # 'junction_control', 
             'road_type', 'local_authority', 'season'
         ]
@@ -65,7 +69,7 @@ class TestAccidentsDatabase(unittest.TestCase):
         df_copy = df_copy[['accident_date', 'day_of_week', 'time', 'part_of_day', 'latitude', 'longitude',
                         'urban_or_rural_area', 'number_of_casualties', 'number_of_vehicles',
                         'accident_severity', 'speed_limit', 'light_conditions', 'weather_conditions',
-                        'road_surface_conditions', 'vehicle_type', 'junction_detail',
+                        'road_surface_conditions', 'vehicle_type', 'wheels', 'capacity', 'category', 'junction_detail',
                         # 'junction_control', 
                         'road_type', 'local_authority', 'season']]
 
@@ -88,7 +92,7 @@ if __name__ == '__main__':
 '''
 ..
 ----------------------------------------------------------------------
-Ran 2 tests in 23.667s
+Ran 2 tests in 49.643s
 
 OK
 '''
