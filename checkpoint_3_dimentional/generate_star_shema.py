@@ -34,6 +34,7 @@ class DimLocation(Base):
     urban_or_rural_area = Column(String(45))
     local_authority= Column(String(75))
     police_force= Column(String(75))
+    country_id= Column(Integer, index=True)
     country= Column(String(75))
     population= Column(Integer)
 
