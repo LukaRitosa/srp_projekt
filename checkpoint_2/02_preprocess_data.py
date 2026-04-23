@@ -95,6 +95,19 @@ print(df["country"].value_counts())
 print(df[df["country"].isna()])
 
 
+def map_population(country):
+    if country == 'Scotland':
+        return 5550000
+    elif country == 'Wales':
+        return 3107500
+    else:
+        return 56489800
+    
+df["population"]= df["country"].apply(map_population)
+
+print(df["population"].value_counts())
+print(df[df["population"].isna()])
+
 
 def map_season(d):
     year= d.year
@@ -194,14 +207,16 @@ df20.to_csv("checkpoint_2/processed/Road_Accident_Data_PROCESSED_20.csv", index=
 '''
 CSV size before:  (307973, 21)
 
+['accident_date' 'day_of_week' 'junction_detail' 'accident_severity'
+ 'latitude' 'light_conditions' 'local_authority' 'longitude'
+ 'number_of_casualties' 'number_of_vehicles' 'police_force'
+ 'road_surface_conditions' 'road_type' 'speed_limit' 'time'
+ 'urban_or_rural_area' 'weather_conditions' 'vehicle_type']
 
 Number of duplicates: 5
 Number of duplicates: 0
 
-
 CSV size after:  (298042, 18)
-
-
   accident_date day_of_week          junction_detail accident_severity  ...                time urban_or_rural_area  weather_conditions           vehicle_type
 0    2021-01-01    Thursday  T or staggered junction           Serious  ... 1900-01-01 15:11:00               Urban  Fine no high winds                    Car
 1    2021-01-05      Monday               Crossroads           Serious  ... 1900-01-01 10:59:00               Urban  Fine no high winds  Taxi/Private hire car
@@ -211,25 +226,24 @@ CSV size after:  (298042, 18)
 
 [5 rows x 18 columns]
 
-
-['accident_date' 'day_of_week' 'junction_detail' 'accident_severity'
- 'latitude' 'light_conditions' 'local_authority' 'longitude'
- 'number_of_casualties' 'number_of_vehicles' 'police_force'
- 'road_surface_conditions' 'road_type' 'speed_limit' 'time'
- 'urban_or_rural_area' 'weather_conditions' 'vehicle_type']
-
-
 country
 England     273635
 Wales        13040
 Scotland     11367
 Name: count, dtype: int64
-
-
 Empty DataFrame
-Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country]
-Index: []
 
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country]
+
+Index: []
+population
+56489800    273635
+3107500      13040
+5550000      11367
+Name: count, dtype: int64
+Empty DataFrame
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population]
+Index: []
 
 season
 Autumn    79578
@@ -237,12 +251,9 @@ Summer    78759
 Spring    75137
 Winter    64568
 Name: count, dtype: int64
-
-
 Empty DataFrame
-Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, season]        
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season]
 Index: []
-
 
 part_of_day
 Afternoon    102011
@@ -251,88 +262,44 @@ Evening       72794
 Night         37571
 Name: count, dtype: int64
 Empty DataFrame
-
-
-Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, season, part_of_day]
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season, part_of_day]
 Index: []
 
-
 wheels
-4.0    254675
-2.0     11024
-6.0      8497
-0.0         3
+4    258642
+2     24546
+6     14851
+0         3
 Name: count, dtype: int64
-
-
-       accident_date day_of_week                      junction_detail accident_severity   latitude  ...  season part_of_day  wheels  capacity  category
-44        2021-01-30      Friday                           Roundabout            Slight  51.504672  ...  Winter     Morning     NaN       NaN       NaN
-46        2021-01-29    Thursday              T or staggered junction            Slight  51.480175  ...  Winter   Afternoon     NaN       NaN       NaN
-72        2021-03-04   Wednesday                      Mini-roundabout            Slight  51.517796  ...  Winter   Afternoon     NaN       NaN       NaN
-74        2021-02-17     Tuesday              T or staggered junction           Serious  51.497103  ...  Winter     Evening     NaN       NaN       NaN
-88        2021-03-09      Monday                           Crossroads            Slight  51.490315  ...  Winter   Afternoon     NaN       NaN       NaN
-...              ...         ...                                  ...               ...        ...  ...     ...         ...     ...       ...       ...
-297979    2022-07-14   Wednesday  Not at junction or within 20 metres            Slight  58.997871  ...  Summer     Evening     NaN       NaN       NaN
-297989    2022-12-05      Sunday  Not at junction or within 20 metres            Slight  58.997002  ...  Autumn       Night     NaN       NaN       NaN
-298010    2022-10-26     Tuesday              T or staggered junction            Slight  60.148990  ...  Autumn       Night     NaN       NaN       NaN
-298027    2022-01-16    Saturday  Not at junction or within 20 metres            Slight  56.880265  ...  Winter       Night     NaN       NaN       NaN
-298028    2022-01-21    Thursday  Not at junction or within 20 metres            Slight  56.884448  ...  Winter   Afternoon     NaN       NaN       NaN
-
-[23843 rows x 24 columns]
-
+Empty DataFrame
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season, part_of_day, wheels, capacity, category]
+Index: []
 
 capacity
-5.0     233960
-3.0      15312
-2.0      10959
-50.0      8497
-4.0       5403
-1.0         68
-
-
+5     233960
+3      17759
+2      14892
+4      11757
+1      10373
+50      8497
+16       804
 Name: count, dtype: int64
-       accident_date day_of_week                      junction_detail accident_severity   latitude  ...  season part_of_day  wheels  capacity  category
-44        2021-01-30      Friday                           Roundabout            Slight  51.504672  ...  Winter     Morning     NaN       NaN       NaN
-46        2021-01-29    Thursday              T or staggered junction            Slight  51.480175  ...  Winter   Afternoon     NaN       NaN       NaN
-72        2021-03-04   Wednesday                      Mini-roundabout            Slight  51.517796  ...  Winter   Afternoon     NaN       NaN       NaN
-74        2021-02-17     Tuesday              T or staggered junction           Serious  51.497103  ...  Winter     Evening     NaN       NaN       NaN
-88        2021-03-09      Monday                           Crossroads            Slight  51.490315  ...  Winter   Afternoon     NaN       NaN       NaN
-...              ...         ...                                  ...               ...        ...  ...     ...         ...     ...       ...       ...
-297979    2022-07-14   Wednesday  Not at junction or within 20 metres            Slight  58.997871  ...  Summer     Evening     NaN       NaN       NaN
-297989    2022-12-05      Sunday  Not at junction or within 20 metres            Slight  58.997002  ...  Autumn       Night     NaN       NaN       NaN
-298010    2022-10-26     Tuesday              T or staggered junction            Slight  60.148990  ...  Autumn       Night     NaN       NaN       NaN
-298027    2022-01-16    Saturday  Not at junction or within 20 metres            Slight  56.880265  ...  Winter       Night     NaN       NaN       NaN
-298028    2022-01-21    Thursday  Not at junction or within 20 metres            Slight  56.884448  ...  Winter   Afternoon     NaN       NaN       NaN
-
-[23843 rows x 24 columns]
-
+Empty DataFrame
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season, part_of_day, wheels, capacity, category]
+Index: []
 
 category
 light         239363
-commercial     15312
-motorcycle     10959
-bus             8497
+commercial     24829
+motorcycle     24481
+bus             9301
 bike              65
 animal             3
 Name: count, dtype: int64
+Empty DataFrame
+Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season, part_of_day, wheels, capacity, category]
+Index: []
 
-
-       accident_date day_of_week                      junction_detail accident_severity   latitude  ...  season part_of_day  wheels  capacity  category
-44        2021-01-30      Friday                           Roundabout            Slight  51.504672  ...  Winter     Morning     NaN       NaN       NaN
-46        2021-01-29    Thursday              T or staggered junction            Slight  51.480175  ...  Winter   Afternoon     NaN       NaN       NaN
-72        2021-03-04   Wednesday                      Mini-roundabout            Slight  51.517796  ...  Winter   Afternoon     NaN       NaN       NaN
-74        2021-02-17     Tuesday              T or staggered junction           Serious  51.497103  ...  Winter     Evening     NaN       NaN       NaN
-88        2021-03-09      Monday                           Crossroads            Slight  51.490315  ...  Winter   Afternoon     NaN       NaN       NaN
-...              ...         ...                                  ...               ...        ...  ...     ...         ...     ...       ...       ...
-297979    2022-07-14   Wednesday  Not at junction or within 20 metres            Slight  58.997871  ...  Summer     Evening     NaN       NaN       NaN
-297989    2022-12-05      Sunday  Not at junction or within 20 metres            Slight  58.997002  ...  Autumn       Night     NaN       NaN       NaN
-298010    2022-10-26     Tuesday              T or staggered junction            Slight  60.148990  ...  Autumn       Night     NaN       NaN       NaN
-298027    2022-01-16    Saturday  Not at junction or within 20 metres            Slight  56.880265  ...  Winter       Night     NaN       NaN       NaN
-298028    2022-01-21    Thursday  Not at junction or within 20 metres            Slight  56.884448  ...  Winter   Afternoon     NaN       NaN       NaN
-
-[23843 rows x 24 columns]
-
-
-CSV size 80:  (238434, 24)
-CSV size 20:  (59608, 24)
+CSV size 80:  (238434, 25)
+CSV size 20:  (59608, 25)
 '''
