@@ -16,11 +16,11 @@ class DimTime(Base):
 
     time_tk = Column(BigInteger, primary_key=True)
 
-    time = Column(String(45))
-    part_of_day= Column(String(45))
-    date= Column(DateTime)
-    day_of_week= Column(String(45))
-    season= Column(String(45))
+    time = Column(String(45), nullable=False)
+    part_of_day= Column(String(45), nullable=False)
+    date= Column(DateTime, nullable=False)
+    day_of_week= Column(String(45), nullable=False)
+    season= Column(String(45), nullable=False)
 
 
 class DimLocation(Base):
@@ -29,18 +29,18 @@ class DimLocation(Base):
 
     location_tk = Column(BigInteger, primary_key=True)
 
-    latitude = Column(Float)
-    longitude = Column(Float)
-    urban_or_rural_area = Column(String(45))
-    local_authority= Column(String(75))
-    police_force= Column(String(75))
-    country_id= Column(Integer, index=True)
-    country= Column(String(75))
-    population= Column(Integer)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    urban_or_rural_area = Column(String(45), nullable=False)
+    local_authority= Column(String(75), nullable=False)
+    police_force= Column(String(75), nullable=False)
+    country_id= Column(Integer, index=True, nullable=False)
+    country= Column(String(75), nullable=False)
+    population= Column(Integer, nullable=False)
 
-    date_from = Column(DateTime)
+    date_from = Column(DateTime, nullable=False)
     date_to = Column(DateTime)
-    is_current = Column(Boolean)
+    is_current = Column(Boolean, nullable=False)
 
 
 class DimConditions(Base):
@@ -49,9 +49,9 @@ class DimConditions(Base):
 
     conditions_tk = Column(BigInteger, primary_key=True)
 
-    weather= Column(String(75))
-    road_surface= Column(String(75))
-    light= Column(String(75))
+    weather= Column(String(75), nullable=False)
+    road_surface= Column(String(75), nullable=False)
+    light= Column(String(75), nullable=False)
 
 class DimVehicle(Base):
     __tablename__ = 'dim_vehicle'
@@ -59,10 +59,10 @@ class DimVehicle(Base):
 
     vehicle_tk = Column(BigInteger, primary_key=True)
 
-    type= Column(String(75), unique=True)
-    capacity= Column(Integer)
-    wheels= Column(Integer)
-    category= Column(String(75))
+    type= Column(String(75), unique=True, nullable=False)
+    capacity= Column(Integer, nullable=False)
+    wheels= Column(Integer, nullable=False)
+    category= Column(String(75), nullable=False)
 
 
 class DimRoad(Base):
@@ -71,9 +71,9 @@ class DimRoad(Base):
 
     road_tk= Column(BigInteger, primary_key=True)
 
-    junction_detail= Column(String(45))
-    type= Column(String(75))
-    speed_limit= Column(Integer)
+    junction_detail= Column(String(45), nullable=False)
+    type= Column(String(75), nullable=False)
+    speed_limit= Column(Integer, nullable=False)
 
 class FactAccidents(Base):
     __tablename__ = 'fact_accident'
@@ -81,9 +81,9 @@ class FactAccidents(Base):
 
     accidents_tk = Column(BigInteger, primary_key=True)
 
-    number_of_casualties= Column(Integer)
-    number_of_vehicles= Column(Integer)
-    accident_severity= Column(String(45))
+    number_of_casualties= Column(Integer, nullable=False)
+    number_of_vehicles= Column(Integer, nullable=False)
+    accident_severity= Column(String(45), nullable=False)
 
     time_tk = Column(BigInteger, ForeignKey('accidents.dim_time.time_tk'))
     location_tk = Column(BigInteger, ForeignKey('accidents.dim_location.location_tk'))

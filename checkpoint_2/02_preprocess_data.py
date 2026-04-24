@@ -39,8 +39,6 @@ duplicates = df.duplicated().sum()
 print(f"Number of duplicates: {duplicates}") # Ispis broja duplikata
 
 
-print("CSV size after: ", df.shape) # Ispis broja redaka i stupaca nakon predprocesiranja
-print(df.head()) # Ispis prvih redaka dataframe-a
 
 fix_local_authority = {
     "Crewe and ntwich": "Crewe and Nantwich",
@@ -52,6 +50,45 @@ fix_local_authority = {
 }
 
 df["local_authority"] = df["local_authority"].replace(fix_local_authority)
+
+cols_to_check = [
+    'urban_or_rural_area',
+    'local_authority',
+    'police_force'
+]
+
+check = (
+    df.groupby(['latitude', 'longitude'])[cols_to_check]
+      .nunique()
+      .reset_index()
+)
+
+inconsistencies = check[
+    (check[cols_to_check] > 1).any(axis=1)
+]
+
+print(f"Broj problematičnih lokacija: {len(inconsistencies)}")
+
+# Ukloni problematične koordinate
+problem_coords = inconsistencies[['latitude', 'longitude']]
+
+df = (
+    df.merge(
+        problem_coords,
+        on=['latitude', 'longitude'],
+        how='left',
+        indicator=True
+    )
+)
+
+df = df[df['_merge'] == 'left_only'].drop(columns=['_merge'])
+
+print("CSV size after removing inconsistent locations:", df.shape)
+
+
+
+print("CSV size after: ", df.shape) # Ispis broja redaka i stupaca nakon predprocesiranja
+print(df.head()) # Ispis prvih redaka dataframe-a
 
 
 # Wales:
@@ -207,92 +244,107 @@ df20.to_csv("checkpoint_2/processed/Road_Accident_Data_PROCESSED_20.csv", index=
 '''
 CSV size before:  (307973, 21)
 
+
 ['accident_date' 'day_of_week' 'junction_detail' 'accident_severity'
  'latitude' 'light_conditions' 'local_authority' 'longitude'
  'number_of_casualties' 'number_of_vehicles' 'police_force'
  'road_surface_conditions' 'road_type' 'speed_limit' 'time'
  'urban_or_rural_area' 'weather_conditions' 'vehicle_type']
 
+
 Number of duplicates: 5
 Number of duplicates: 0
 
-CSV size after:  (298042, 18)
-  accident_date day_of_week          junction_detail accident_severity  ...                time urban_or_rural_area  weather_conditions           vehicle_type
-0    2021-01-01    Thursday  T or staggered junction           Serious  ... 1900-01-01 15:11:00               Urban  Fine no high winds                    Car
-1    2021-01-05      Monday               Crossroads           Serious  ... 1900-01-01 10:59:00               Urban  Fine no high winds  Taxi/Private hire car
-2    2021-01-04      Sunday  T or staggered junction            Slight  ... 1900-01-01 14:19:00               Urban  Fine no high winds  Taxi/Private hire car
-3    2021-01-05      Monday  T or staggered junction           Serious  ... 1900-01-01 08:10:00               Urban               Other  Motorcycle over 500cc
-4    2021-01-06     Tuesday               Crossroads           Serious  ... 1900-01-01 17:25:00               Urban  Fine no high winds                    Car
+
+Broj problematičnih lokacija: 243
+CSV size after removing inconsistent locations: (297447, 18)
+
+
+CSV size after:  (297447, 18)
+
+
+  accident_date day_of_week          junction_detail  ... urban_or_rural_area  weather_conditions           vehicle_type
+0    2021-01-01    Thursday  T or staggered junction  ...               Urban  Fine no high winds                    Car
+1    2021-01-05      Monday               Crossroads  ...               Urban  Fine no high winds  Taxi/Private hire car
+2    2021-01-04      Sunday  T or staggered junction  ...               Urban  Fine no high winds  Taxi/Private hire car
+3    2021-01-05      Monday  T or staggered junction  ...               Urban               Other  Motorcycle over 500cc
+4    2021-01-06     Tuesday               Crossroads  ...               Urban  Fine no high winds                    Car
 
 [5 rows x 18 columns]
 
+
 country
-England     273635
-Wales        13040
-Scotland     11367
+England     273061
+Wales        13021
+Scotland     11365
 Name: count, dtype: int64
 Empty DataFrame
-
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country]
-
 Index: []
+
+
 population
-56489800    273635
-3107500      13040
-5550000      11367
+56489800    273061
+3107500      13021
+5550000      11365
 Name: count, dtype: int64
 Empty DataFrame
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population]
 Index: []
 
+
 season
-Autumn    79578
-Summer    78759
-Spring    75137
-Winter    64568
+Autumn    79452
+Summer    78621
+Spring    75005
+Winter    64369
 Name: count, dtype: int64
 Empty DataFrame
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season]
 Index: []
 
+
 part_of_day
-Afternoon    102011
-Morning       85666
-Evening       72794
-Night         37571
+Afternoon    101800
+Morning       85496
+Evening       72633
+Night         37518
 Name: count, dtype: int64
 Empty DataFrame
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season, part_of_day]
 Index: []
 
+
 wheels
-4    258642
-2     24546
-6     14851
+4    258120
+2     24494
+6     14830
 0         3
 Name: count, dtype: int64
 Empty DataFrame
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season, part_of_day, wheels, capacity, category]
 Index: []
 
+
 capacity
-5     233960
-3      17759
-2      14892
-4      11757
-1      10373
-50      8497
-16       804
+5     233474
+3      17734
+2      14862
+4      11740
+1      10350
+50      8484
+16       803
 Name: count, dtype: int64
 Empty DataFrame
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season, part_of_day, wheels, capacity, category]
 Index: []
 
+
 category
-light         239363
-commercial     24829
-motorcycle     24481
-bus             9301
+light         238868
+commercial     24795
+motorcycle     24429
+bus             9287
 bike              65
 animal             3
 Name: count, dtype: int64
@@ -300,6 +352,7 @@ Empty DataFrame
 Columns: [accident_date, day_of_week, junction_detail, accident_severity, latitude, light_conditions, local_authority, longitude, number_of_casualties, number_of_vehicles, police_force, road_surface_conditions, road_type, speed_limit, time, urban_or_rural_area, weather_conditions, vehicle_type, country, population, season, part_of_day, wheels, capacity, category]
 Index: []
 
-CSV size 80:  (238434, 25)
-CSV size 20:  (59608, 25)
+
+CSV size 80:  (237958, 25)
+CSV size 20:  (59489, 25)
 '''

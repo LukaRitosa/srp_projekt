@@ -405,14 +405,14 @@ print("Data imported successfully!")
 '''
 OUTPUT:
 
-CSV size: (238434, 24)
-  accident_date day_of_week          junction_detail accident_severity   latitude light_conditions  ...  country  season  part_of_day  wheels capacity    category
-0    2021-01-01    Thursday  T or staggered junction           Serious  51.512273         Daylight  ...  England  Winter    Afternoon       4        5       light
-1    2021-01-04      Sunday  T or staggered junction            Slight  51.486668         Daylight  ...  England  Winter    Afternoon       4        4       light
-2    2021-01-05      Monday  T or staggered junction           Serious  51.507804         Daylight  ...  England  Winter      Morning       2        2  motorcycle
-3    2021-01-01    Thursday  T or staggered junction            Slight  51.493415         Daylight  ...  England  Winter      Morning       4        5       light
-4    2021-01-02      Friday               Crossroads            Slight  51.491957         Daylight  ...  England  Winter    Afternoon       4        5       light
+CSV size: (237958, 25)
+  accident_date day_of_week          junction_detail accident_severity   latitude light_conditions  ... population  season  part_of_day  wheels capacity    category
+0    2021-01-01    Thursday  T or staggered junction           Serious  51.512273         Daylight  ...   56489800  Winter    Afternoon       4        5       light
+1    2021-01-04      Sunday  T or staggered junction            Slight  51.486668         Daylight  ...   56489800  Winter    Afternoon       4        4       light
+2    2021-01-05      Monday  T or staggered junction           Serious  51.507804         Daylight  ...   56489800  Winter      Morning       2        2  motorcycle
+3    2021-01-01    Thursday  T or staggered junction            Slight  51.493415         Daylight  ...   56489800  Winter      Morning       4        5       light
+4    2021-01-02      Friday               Crossroads            Slight  51.491957         Daylight  ...   56489800  Winter    Afternoon       4        5       light
 
-[5 rows x 24 columns]
+[5 rows x 25 columns]
 Data imported successfully!
 '''
