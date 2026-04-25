@@ -34,6 +34,7 @@ def transform_country_dim(accident_df, local_authority_df, police_force_df, coun
         .withColumn("local_authority", initcap(trim(col("local_authority"))))
         .withColumn("police_force", initcap(trim(col("police_force"))))
         .withColumn("country", initcap(trim(col("country"))))
+        .dropDuplicates()
     )
 
     # --- Step 2: Normalize CSV data ---
