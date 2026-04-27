@@ -4,7 +4,7 @@ from pyspark.sql.window import Window
 from pyspark.sql.functions import row_number
 from spark_session import get_spark_session
 
-def transform_date_dim(accident_df, junction_detail_df, road_df, csv_road_df=None):
+def transform_road_dim(accident_df, junction_detail_df, road_df, csv_road_df=None):
     spark = get_spark_session()
 
      # Aliases
@@ -18,11 +18,11 @@ def transform_date_dim(accident_df, junction_detail_df, road_df, csv_road_df=Non
         .join(r, col("a.road_type_fk") == col("r.id"), "left")
         .select(
             trim(col("j.name")).alias("junction_detail"),
-            trim(col("r.name")).alias("type"),
+            trim(col("r.name")).alias("road_type"),
             col("a.speed_limit").alias("speed_limit"),
         )
         .withColumn("junction_detail", initcap(trim(col("junction_detail"))))
-        .withColumn("type", initcap(trim(col("type"))))
+        .withColumn("road_type", initcap(trim(col("road_type"))))
         .dropDuplicates()
     )
     
@@ -32,16 +32,16 @@ def transform_date_dim(accident_df, junction_detail_df, road_df, csv_road_df=Non
             csv_road_df
             .select(
                 col("junction_detail").alias("junction_detail"),
-                trim(col("road_type")).alias("type"),
+                col("road_type").alias("road_type"),
                 col("speed_limit").alias("speed_limit"),
             )
-            .select("junction_detail", "type", "speed_limit")
+            .select("junction_detail", "road_type", "speed_limit")
             .dropDuplicates()
         )
 
         combined_df = mysql_df.unionByName(csv_df).dropDuplicates()
 
-    window = Window.orderBy("junction_detail", "type", "speed_limit")
+    window = Window.orderBy("junction_detail", "road_type", "speed_limit")
     combined_df = combined_df.withColumn("road_tk", row_number().over(window))
 
     return combined_df

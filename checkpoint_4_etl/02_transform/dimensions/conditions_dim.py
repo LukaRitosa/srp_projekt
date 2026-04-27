@@ -4,7 +4,7 @@ from pyspark.sql.window import Window
 from pyspark.sql.functions import row_number
 from spark_session import get_spark_session
 
-def transform_date_dim(accident_df, weather_df, road_surface_df, light_df, csv_conditions_df=None):
+def transform_conditions_dim(accident_df, weather_df, road_surface_df, light_df, csv_conditions_df=None):
     spark = get_spark_session()
 
      # Aliases

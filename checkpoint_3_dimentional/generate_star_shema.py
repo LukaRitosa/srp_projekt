@@ -59,7 +59,7 @@ class DimVehicle(Base):
 
     vehicle_tk = Column(BigInteger, primary_key=True)
 
-    type= Column(String(75), unique=True, nullable=False)
+    vehicle_type= Column(String(75), unique=True, nullable=False)
     capacity= Column(Integer, nullable=False)
     wheels= Column(Integer, nullable=False)
     category= Column(String(75), nullable=False)
@@ -72,7 +72,7 @@ class DimRoad(Base):
     road_tk= Column(BigInteger, primary_key=True)
 
     junction_detail= Column(String(45), nullable=False)
-    type= Column(String(75), nullable=False)
+    road_type= Column(String(75), nullable=False)
     speed_limit= Column(Integer, nullable=False)
 
 class FactAccidents(Base):

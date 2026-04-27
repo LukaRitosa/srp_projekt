@@ -4,7 +4,7 @@ from pyspark.sql.window import Window
 from pyspark.sql.functions import row_number
 from spark_session import get_spark_session
 
-def transform_date_dim(accident_df, time_df, part_of_day_df, date_df, day_of_week_df, season_df, csv_time_df=None):
+def transform_time_dim(accident_df, time_df, part_of_day_df, date_df, day_of_week_df, season_df, csv_time_df=None):
     spark = get_spark_session()
 
      # Aliases

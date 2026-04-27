@@ -6,7 +6,7 @@ from pyspark.sql.window import Window
 from pyspark.sql.types import StructType, StructField, StringType, LongType
 from spark_session import get_spark_session
 
-def transform_country_dim(accident_df, local_authority_df, police_force_df, country_df, csv_location_df=None):
+def transform_location_dim(accident_df, local_authority_df, police_force_df, country_df, csv_location_df=None):
     spark = get_spark_session()
         
     # Aliases

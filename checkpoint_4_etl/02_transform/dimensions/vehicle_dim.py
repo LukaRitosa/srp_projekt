@@ -4,7 +4,7 @@ from pyspark.sql.window import Window
 from pyspark.sql.functions import row_number
 from spark_session import get_spark_session
 
-def transform_date_dim(vehicle_type_df, vehicle_category_df, csv_vehicle_df=None):
+def transform_vehicle_dim(vehicle_type_df, vehicle_category_df, csv_vehicle_df=None):
     spark = get_spark_session()
 
      # Aliases
@@ -15,12 +15,12 @@ def transform_date_dim(vehicle_type_df, vehicle_category_df, csv_vehicle_df=None
     mysql_df = (
         v.join(vc, col("v.category_fk") == col("vc.id"), "left")
         .select(
-            trim(col("v.name")).alias("type"),
+            trim(col("v.name")).alias("vehicle_type"),
             col("v.capacity").alias("capacity"),
             col("v.wheels").alias("wheels"),
             trim(col("vc.name")).alias("category"),
         )
-        .withColumn("type", initcap(trim(col("type"))))
+        .withColumn("vehicle_type", initcap(trim(col("vehicle_type"))))
         .withColumn("category", initcap(trim(col("category"))))
         .dropDuplicates()
     )
@@ -30,18 +30,18 @@ def transform_date_dim(vehicle_type_df, vehicle_category_df, csv_vehicle_df=None
         csv_df = (
             csv_vehicle_df
             .select(
-                trim(col("vehicle_type")).alias("type"),
+                col("vehicle_type").alias("vehicle_type"),
                 col("capacity").alias("capacity"), 
                 col("wheels").alias("wheels"), 
                 col("category").alias("category")
             )
-            .select("type", "capacity", "wheels", "category")
+            .select("vehicle_type", "capacity", "wheels", "category")
             .dropDuplicates()
         )
 
         combined_df = mysql_df.unionByName(csv_df).dropDuplicates()
 
-    window = Window.orderBy("type")
+    window = Window.orderBy("vehicle_type")
     combined_df = combined_df.withColumn("vehicle_tk", row_number().over(window))
 
-    return combined_df.orderBy("type")
+    return combined_df.orderBy("vehicle_type")
