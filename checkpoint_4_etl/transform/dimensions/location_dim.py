@@ -47,7 +47,28 @@ def transform_location_dim(accident_df, local_authority_df, police_force_df, cou
             .withColumn("country", initcap(trim(col("country"))))
         )
         
-        csv_df = csv_df.withColumn("country_id", lit(None).cast("long"))
+        # csv_df = csv_df.withColumn("country_id", lit(None).cast("long"))
+
+        country_lookup = (
+            country_df.select(col("id").alias("country_id"), initcap(trim(col("name"))).alias("country"))
+        )
+
+        csv_df = (
+            csv_df.join(country_lookup, on="country", how="left")
+        )
+
+        target_cols = [
+            "latitude",
+            "longitude",
+            "urban_or_rural_area",
+            "local_authority",
+            "police_force",
+            "country_id",
+            "country",
+            "population"
+        ]
+
+        csv_df = csv_df.select(target_cols)
 
         merged_df = merged_df.select("latitude", "longitude", "urban_or_rural_area", "local_authority", "police_force", "country_id", "country", "population") \
                              .unionByName(csv_df) \

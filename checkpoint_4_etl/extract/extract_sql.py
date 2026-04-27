@@ -3,7 +3,7 @@ from spark_session import get_spark_session
 def extract_table(table_name):
     spark = get_spark_session("ETL_App")
 
-    jdbc_url = "jdbc:mysql://127.0.0.1:3306/dw?useSSL=false"
+    jdbc_url = "jdbc:mysql://127.0.0.1:3306/accidents?useSSL=false"
     connection_properties = {
         "user": "root",
         "password": "root",

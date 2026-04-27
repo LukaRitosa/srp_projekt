@@ -158,5 +158,5 @@ def transform_accident_fact(
     )
 
     # print("Final fact sales row count:", fact_df.count())
-    assert fact_df.count() == 237958, "Number of accident records from step one of the project."
+    assert fact_df.count() == 297447, "Number of accident records from step one of the project."
     return fact_df
