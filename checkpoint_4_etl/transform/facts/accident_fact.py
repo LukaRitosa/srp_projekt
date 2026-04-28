@@ -84,6 +84,12 @@ def transform_accident_fact(
         .withColumn("longitude", round(col("longitude"), 5))
         .withColumn("date", to_date(col("date"), "MM/dd/yyyy"))
         .withColumn("time", col("time").cast("string"))
+        .withColumn("vehicle_type", initcap(trim(col("vehicle_type"))))
+        .withColumn("weather", initcap(trim(col("weather"))))
+        .withColumn("road_surface", initcap(trim(col("road_surface"))))
+        .withColumn("light", initcap(trim(col("light"))))
+        .withColumn("junction_detail", initcap(trim(col("junction_detail"))))
+        .withColumn("road_type", initcap(trim(col("road_type"))))
     )
 
     print("BASE:", enriched_mysql_accident.count())

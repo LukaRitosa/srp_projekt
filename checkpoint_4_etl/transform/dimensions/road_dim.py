@@ -35,6 +35,8 @@ def transform_road_dim(accident_df, junction_detail_df, road_df, csv_road_df=Non
                 col("road_type").alias("road_type"),
                 col("speed_limit").alias("speed_limit"),
             )
+            .withColumn("junction_detail", initcap(trim(col("junction_detail"))))
+            .withColumn("road_type", initcap(trim(col("road_type"))))
             .select("junction_detail", "road_type", "speed_limit")
             .dropDuplicates(["junction_detail", "road_type", "speed_limit"])
         )

@@ -38,6 +38,9 @@ def transform_conditions_dim(accident_df, weather_df, road_surface_df, light_df,
                 trim(col("road_surface_conditions")).alias("road_surface"),
                 trim(col("light_conditions")).alias("light"),
             )
+            .withColumn("weather", initcap(trim(col("weather"))))
+            .withColumn("road_surface", initcap(trim(col("road_surface"))))
+            .withColumn("light", initcap(trim(col("light"))))
             .select("weather", "road_surface", "light")
             .dropDuplicates(["light", "weather", "road_surface"])
         )
