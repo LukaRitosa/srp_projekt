@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, trim, regexp_extract, initcap
+from pyspark.sql.functions import col, trim, regexp_extract, initcap, lower
 from pyspark.sql.types import IntegerType
 from pyspark.sql.window import Window
 from pyspark.sql.functions import row_number
@@ -22,7 +22,7 @@ def transform_vehicle_dim(vehicle_type_df, vehicle_category_df, csv_vehicle_df=N
         )
         .withColumn("vehicle_type", initcap(trim(col("vehicle_type"))))
         .withColumn("category", initcap(trim(col("category"))))
-        .dropDuplicates()
+        .dropDuplicates(["vehicle_type"])
     )
     
     # --- Step 2: Normalize CSV data ---
@@ -35,13 +35,17 @@ def transform_vehicle_dim(vehicle_type_df, vehicle_category_df, csv_vehicle_df=N
                 col("wheels").alias("wheels"), 
                 col("category").alias("category")
             )
+            .withColumn("vehicle_type", initcap(trim(col("vehicle_type"))))
+            .withColumn("category", initcap(trim(col("category"))))
             .select("vehicle_type", "capacity", "wheels", "category")
-            .dropDuplicates()
+            .dropDuplicates(["vehicle_type"])
         )
 
-        combined_df = mysql_df.unionByName(csv_df).dropDuplicates()
+        combined_df = mysql_df.unionByName(csv_df).dropDuplicates(["vehicle_type"])
 
     window = Window.orderBy("vehicle_type")
     combined_df = combined_df.withColumn("vehicle_tk", row_number().over(window))
 
-    return combined_df.orderBy("vehicle_type")
+    print("Vehicle row count:", combined_df.count())
+    assert combined_df.count() == 14, "Number of vehicles records from step one of the project."
+    return combined_df

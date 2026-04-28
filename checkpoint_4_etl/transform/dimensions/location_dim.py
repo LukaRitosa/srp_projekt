@@ -1,10 +1,11 @@
 import requests
 import json
 from pyspark.sql import Row
-from pyspark.sql.functions import col, trim, initcap, lit, when, isnull, row_number, coalesce, current_timestamp
+from pyspark.sql.functions import col, trim, initcap, lit, when, isnull, row_number, coalesce, current_timestamp, round
 from pyspark.sql.window import Window
 from pyspark.sql.types import StructType, StructField, StringType, LongType
 from spark_session import get_spark_session
+
 
 def transform_location_dim(accident_df, local_authority_df, police_force_df, country_df, csv_location_df=None):
     spark = get_spark_session()
@@ -30,11 +31,13 @@ def transform_location_dim(accident_df, local_authority_df, police_force_df, cou
             trim(col("c.name")).alias("country"),
             col("c.population").alias("population"),
         )
+        .withColumn("latitude", col("latitude").cast("decimal(10,5)"))
+        .withColumn("longitude", col("longitude").cast("decimal(10,5)"))
         .withColumn("urban_or_rural_area", initcap(trim(col("urban_or_rural_area"))))
         .withColumn("local_authority", initcap(trim(col("local_authority"))))
         .withColumn("police_force", initcap(trim(col("police_force"))))
         .withColumn("country", initcap(trim(col("country"))))
-        .dropDuplicates()
+        .dropDuplicates(["latitude", "longitude"])
     )
 
     # --- Step 2: Normalize CSV data ---
@@ -45,6 +48,9 @@ def transform_location_dim(accident_df, local_authority_df, police_force_df, cou
             .withColumn("local_authority", initcap(trim(col("local_authority"))))
             .withColumn("police_force", initcap(trim(col("police_force"))))
             .withColumn("country", initcap(trim(col("country"))))
+            .withColumn("latitude", col("latitude").cast("decimal(10,5)"))
+            .withColumn("longitude", col("longitude").cast("decimal(10,5)"))
+            .dropDuplicates(["latitude", "longitude"])
         )
         
         # csv_df = csv_df.withColumn("country_id", lit(None).cast("long"))
@@ -87,6 +93,7 @@ def transform_location_dim(accident_df, local_authority_df, police_force_df, cou
 
 
     final_df = merged_df.select(
+        "location_tk",
         "latitude", 
         "longitude", 
         "urban_or_rural_area", 
@@ -94,7 +101,10 @@ def transform_location_dim(accident_df, local_authority_df, police_force_df, cou
         "police_force", 
         "country_id", 
         "country", 
-        "population"
+        "population",
+        "is_current",
+        "date_from",
+        "date_to"
     )
 
     return final_df

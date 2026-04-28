@@ -1,7 +1,7 @@
 from pyspark.sql.functions import col, trim, regexp_extract, initcap
 from pyspark.sql.types import IntegerType
 from pyspark.sql.window import Window
-from pyspark.sql.functions import row_number
+from pyspark.sql.functions import row_number, to_date, col, coalesce
 from spark_session import get_spark_session
 
 def transform_time_dim(accident_df, time_df, part_of_day_df, date_df, day_of_week_df, season_df, csv_time_df=None):
@@ -16,7 +16,7 @@ def transform_time_dim(accident_df, time_df, part_of_day_df, date_df, day_of_wee
     s = season_df.alias("s")
 
     # --- Step 1: Normalize MySQL data ---
-    mysql_df = (
+    mysql_df = ( 
         a.join(t, col("a.accident_time_fk") == col("t.id"), "left")
         .join(p, col("t.part_of_day_fk") == col("p.id"), "left")
         .join(d, col("a.accident_date_fk") == col("d.id"), "left")
@@ -29,10 +29,12 @@ def transform_time_dim(accident_df, time_df, part_of_day_df, date_df, day_of_wee
             col("dw.day_of_week").alias("day_of_week"),
             col("s.season").alias("season"),
         )
+        .withColumn("date", col("date").cast("date"))
+        .withColumn("time", col("time").cast("string"))
         .withColumn("part_of_day", initcap(trim(col("part_of_day"))))
         .withColumn("day_of_week", initcap(trim(col("day_of_week"))))
         .withColumn("season", initcap(trim(col("season"))))
-        .dropDuplicates()
+        .dropDuplicates(["date", "time"])
     )
     
     # --- Step 2: Normalize CSV data ---
@@ -46,8 +48,10 @@ def transform_time_dim(accident_df, time_df, part_of_day_df, date_df, day_of_wee
                 col("season").alias("season"),
                 col("day_of_week").alias("day_of_week")
             )
+            .withColumn("date", coalesce(to_date(col("date"), "MM/dd/yyyy"), to_date(col("date"), "yyyy-MM-dd"), col("date").cast("date")))
+            .withColumn("time", col("time").cast("string"))
             .select("time", "part_of_day", "date", "season", "day_of_week")
-            .dropDuplicates()
+            .dropDuplicates(["date", "time"])
         )
 
         combined_df = mysql_df.unionByName(csv_df).dropDuplicates(["time", "date"])

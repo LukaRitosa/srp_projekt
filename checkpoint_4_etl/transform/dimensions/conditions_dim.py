@@ -26,7 +26,7 @@ def transform_conditions_dim(accident_df, weather_df, road_surface_df, light_df,
         .withColumn("weather", initcap(trim(col("weather"))))
         .withColumn("road_surface", initcap(trim(col("road_surface"))))
         .withColumn("light", initcap(trim(col("light"))))
-        .dropDuplicates()
+        .dropDuplicates(["light", "weather", "road_surface"])
     )
     
     # --- Step 2: Normalize CSV data ---
@@ -39,10 +39,10 @@ def transform_conditions_dim(accident_df, weather_df, road_surface_df, light_df,
                 trim(col("light_conditions")).alias("light"),
             )
             .select("weather", "road_surface", "light")
-            .dropDuplicates()
+            .dropDuplicates(["light", "weather", "road_surface"])
         )
 
-        combined_df = mysql_df.unionByName(csv_df).dropDuplicates()
+        combined_df = mysql_df.unionByName(csv_df).dropDuplicates(["light", "weather", "road_surface"])
 
     window = Window.orderBy("weather", "road_surface", "light")
     combined_df = combined_df.withColumn("conditions_tk", row_number().over(window))

@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, trim, initcap, regexp_extract, row_number
+from pyspark.sql.functions import col, trim, initcap, regexp_extract, row_number, round, to_date
 from pyspark.sql.window import Window
 
 def transform_accident_fact(
@@ -80,29 +80,35 @@ def transform_accident_fact(
 
             trim(col("s.season")).alias("season")
         )
+        .withColumn("latitude", round(col("latitude"), 5))
+        .withColumn("longitude", round(col("longitude"), 5))
+        .withColumn("date", to_date(col("date"), "MM/dd/yyyy"))
+        .withColumn("time", col("time").cast("string"))
     )
 
-    # print("MySQL sales data count:", enriched_mysql_sales.count())
+    print("BASE:", enriched_mysql_accident.count())
 
     # Normalize CSV sales (if any)
     if csv_accident_df:
-        cleaned_csv_accident = (
+        cleaned_csv_accident = ( 
             csv_accident_df
-            .withColumn("date", initcap(trim(col("date"))))
+            .withColumn("date", to_date(col("accident_date"), "MM/dd/yyyy"))
+            .withColumn("time", col("time").cast("string"))
             .withColumn("day_of_week", initcap(trim(col("day_of_week"))))
-            .withColumn("time", initcap(trim(col("time"))))
+            # .withColumn("time", initcap(trim(col("time"))))
             .withColumn("part_of_day", initcap(trim(col("part_of_day"))))
-            .withColumn("latitude", initcap(trim(col("latitude"))))
-            .withColumn("longitude", initcap(trim(col("longitude"))))
+            .withColumn("latitude", round(col("latitude"), 5))
+            .withColumn("longitude", round(col("longitude"), 5))
             .withColumn("urban_or_rural_area", initcap(trim(col("urban_or_rural_area"))))
             .withColumn("number_of_casualties", initcap(trim(col("number_of_casualties"))))
             .withColumn("number_of_vehicles", initcap(trim(col("number_of_vehicles"))))
             .withColumn("accident_severity", initcap(trim(col("accident_severity"))))
+            .withColumn("speed_limit", col("speed_limit").cast("int"))
             .withColumn("light", initcap(trim(col("light_conditions"))))
             .withColumn("weather", initcap(trim(col("weather_conditions"))))
             .withColumn("road_surface", initcap(trim(col("road_surface_conditions"))))
             .withColumn("vehicle_type", initcap(trim(col("vehicle_type"))))
-            .withColumn("wheels", col("revenue").cast("wheels"))
+            .withColumn("wheels", initcap(trim(col("wheels"))))
             .withColumn("capacity", initcap(trim(col("capacity"))))
             .withColumn("category", initcap(trim(col("category"))))
             .withColumn("junction_detail", initcap(trim(col("junction_detail"))))
@@ -113,13 +119,13 @@ def transform_accident_fact(
             .withColumn("population", initcap(trim(col("population"))))
             .withColumn("season", initcap(trim(col("season"))))
             .select("date", "day_of_week", "time", "part_of_day", "latitude", "longitude", "urban_or_rural_area", "number_of_casualties", 
-                    "number_of_vehicles", "accident_severity", "light", "weather", "road_surface", "vehicle_type", "wheels", "capacity", 
+                    "number_of_vehicles", "accident_severity", "speed_limit", "light", "weather", "road_surface", "vehicle_type", "wheels", "capacity", 
                     "category", "junction_detail", "road_type", "local_authority", "police_force", "country", "population", "season") 
         )
     else:
         cleaned_csv_accident = None
 
-    # print("CSV sales data count:", cleaned_csv_sales.count() if cleaned_csv_sales else 0)
+    print("CSV:", cleaned_csv_accident.count() if csv_accident_df else 0)
 
     # Merge MySQL and CSV sales
     combined_accident = enriched_mysql_accident
@@ -131,7 +137,9 @@ def transform_accident_fact(
         combined_accident.alias("a")
         .join(dim_location_df.alias("l"), 
               (col("a.latitude") == col("l.latitude")) & (col("a.longitude") == col("l.longitude")), "left")
-        .join(dim_road_df.alias("r"), col("a.road_type") == col("r.road_type"), "left")
+        .join(dim_road_df.alias("r"), (col("a.road_type") == col("r.road_type")) & 
+                                      (col("a.junction_detail") == col("r.junction_detail")) & 
+                                      (col("a.speed_limit") == col("r.speed_limit")), "left")
         .join(dim_conditions_df.alias("c"),
               (col("a.light") == col("c.light")) & (col("a.weather") == col("c.weather")) & (col("a.road_surface") == col("c.road_surface")), 
               "left")
@@ -153,10 +161,13 @@ def transform_accident_fact(
 
 
     fact_df = fact_df.withColumn(
-        "fact_sales_tk",
+        "accidents_tk",
         row_number().over(Window.orderBy("t.time_tk", "l.location_tk", "c.conditions_tk", "v.vehicle_tk", "r.road_tk"))
     )
 
-    # print("Final fact sales row count:", fact_df.count())
+    # fact_df.groupBy("location_tk").count().orderBy("count", ascending=False).show()
+
+    
+    print("Fact row count:", fact_df.count())
     assert fact_df.count() == 297447, "Number of accident records from step one of the project."
     return fact_df

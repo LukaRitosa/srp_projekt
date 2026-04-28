@@ -23,7 +23,7 @@ def transform_road_dim(accident_df, junction_detail_df, road_df, csv_road_df=Non
         )
         .withColumn("junction_detail", initcap(trim(col("junction_detail"))))
         .withColumn("road_type", initcap(trim(col("road_type"))))
-        .dropDuplicates()
+        .dropDuplicates(["junction_detail", "road_type", "speed_limit"])
     )
     
     # --- Step 2: Normalize CSV data ---
@@ -36,10 +36,10 @@ def transform_road_dim(accident_df, junction_detail_df, road_df, csv_road_df=Non
                 col("speed_limit").alias("speed_limit"),
             )
             .select("junction_detail", "road_type", "speed_limit")
-            .dropDuplicates()
+            .dropDuplicates(["junction_detail", "road_type", "speed_limit"])
         )
 
-        combined_df = mysql_df.unionByName(csv_df).dropDuplicates()
+        combined_df = mysql_df.unionByName(csv_df).dropDuplicates(["junction_detail", "road_type", "speed_limit"])
 
     window = Window.orderBy("junction_detail", "road_type", "speed_limit")
     combined_df = combined_df.withColumn("road_tk", row_number().over(window))

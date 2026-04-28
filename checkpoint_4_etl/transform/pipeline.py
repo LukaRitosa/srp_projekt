@@ -4,6 +4,7 @@ from transform.facts.accident_fact import transform_accident_fact
 from transform.dimensions.road_dim import transform_road_dim
 from transform.dimensions.time_dim import transform_time_dim
 from transform.dimensions.vehicle_dim import transform_vehicle_dim
+from pyspark.sql.functions import col
 
 
 def run_transformations(raw_data):
@@ -44,13 +45,32 @@ def run_transformations(raw_data):
         csv_time_df=raw_data.get("csv_accident")
     )
     print("4️⃣ Time dimension complete")
+
+    # null_dates = time_dim.filter(col("date").isNull())
+    # print(f"NULL datumi u dim_time: {null_dates.count()}")
+    # null_dates.show(10, truncate=False)
     
     vehicle_dim = transform_vehicle_dim(
         raw_data["vehicle_type"],
         raw_data["vehicle_category"],
         csv_vehicle_df=raw_data.get("csv_accident")
     )
-    print("4️⃣ Vehicle dimension complete")
+    print("5️⃣ Vehicle dimension complete")
+
+    print("LOCATION unique:", location_dim.count())
+    print("CONDITIONS unique:", conditions_dim.count())
+    print("ROAD unique:", road_dim.count())
+    print("TIME unique:", time_dim.count())
+    print("VEHICLE unique:", vehicle_dim.count())
+
+    # print("LOCATION duplicates:")
+    # location_dim.groupBy("latitude", "longitude").count().filter("count > 1").show(20)
+
+    # print("TIME duplicates:")
+    # time_dim.groupBy("date", "time").count().filter("count > 1").show(20)
+
+    # print("CONDITIONS duplicates:")
+    # conditions_dim.groupBy("light", "weather", "road_surface").count().filter("count > 1").show(20)
 
     accident_fact = transform_accident_fact(
         raw_data,
@@ -60,7 +80,7 @@ def run_transformations(raw_data):
         time_dim,
         vehicle_dim 
     )
-    print("5️⃣ Sales fact table complete")
+    print("6️⃣ Sales fact table complete")
 
     return {
         "dim_time": time_dim,
