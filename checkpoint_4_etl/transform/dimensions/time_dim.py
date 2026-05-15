@@ -30,7 +30,7 @@ def transform_time_dim(accident_df, time_df, part_of_day_df, date_df, day_of_wee
             col("s.season").alias("season"),
         )
         .withColumn("date", col("date").cast("date"))
-        .withColumn("time", col("time").cast("string"))
+        .withColumn("time", regexp_extract(col("time").cast("string"), r"(\d{2}:\d{2}:\d{2})", 1))
         .withColumn("part_of_day", initcap(trim(col("part_of_day"))))
         .withColumn("day_of_week", initcap(trim(col("day_of_week"))))
         .withColumn("season", initcap(trim(col("season"))))
@@ -49,7 +49,7 @@ def transform_time_dim(accident_df, time_df, part_of_day_df, date_df, day_of_wee
                 col("day_of_week").alias("day_of_week")
             )
             .withColumn("date", coalesce(to_date(col("date"), "MM/dd/yyyy"), to_date(col("date"), "yyyy-MM-dd"), col("date").cast("date")))
-            .withColumn("time", col("time").cast("string"))
+            .withColumn("time", regexp_extract(col("time").cast("string"), r"(\d{2}:\d{2}:\d{2})", 1))
             .select("time", "part_of_day", "date", "season", "day_of_week")
             .dropDuplicates(["date", "time"])
         )

@@ -83,7 +83,7 @@ def transform_accident_fact(
         .withColumn("latitude", round(col("latitude"), 5))
         .withColumn("longitude", round(col("longitude"), 5))
         .withColumn("date", to_date(col("date"), "MM/dd/yyyy"))
-        .withColumn("time", col("time").cast("string"))
+        .withColumn("time", regexp_extract(col("time").cast("string"), r"(\d{2}:\d{2}:\d{2})", 1))
         .withColumn("vehicle_type", initcap(trim(col("vehicle_type"))))
         .withColumn("weather", initcap(trim(col("weather"))))
         .withColumn("road_surface", initcap(trim(col("road_surface"))))
@@ -99,7 +99,7 @@ def transform_accident_fact(
         cleaned_csv_accident = ( 
             csv_accident_df
             .withColumn("date", to_date(col("accident_date"), "MM/dd/yyyy"))
-            .withColumn("time", col("time").cast("string"))
+            .withColumn("time", regexp_extract(col("time").cast("string"), r"(\d{2}:\d{2}:\d{2})", 1))
             .withColumn("day_of_week", initcap(trim(col("day_of_week"))))
             # .withColumn("time", initcap(trim(col("time"))))
             .withColumn("part_of_day", initcap(trim(col("part_of_day"))))
