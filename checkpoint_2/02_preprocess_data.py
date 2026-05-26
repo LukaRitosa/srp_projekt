@@ -13,6 +13,12 @@ df= df.drop(columns="Accident_Index")
 df= df.drop(columns="Junction_Control")
 df = df.drop(df[df["Vehicle_Type"] == "Other vehicle"].index)
 df["Accident_Severity"] = df["Accident_Severity"].replace("Fetal", "Fatal")
+df["Weather_Conditions"] = df["Weather_Conditions"].replace("Other", "Fine no high winds")
+df["Light_Conditions"] = df["Light_Conditions"].replace(
+    "Darkness - lighting unknown", 
+    "Darkness - no lighting"
+)
+
 
 df["Accident Date"]= pd.to_datetime(df["Accident Date"], format="%m/%d/%Y")
 df["Time"]= pd.to_datetime(df["Time"], format="%H:%M")
