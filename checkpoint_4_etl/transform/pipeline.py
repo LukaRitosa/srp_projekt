@@ -80,7 +80,7 @@ def run_transformations(raw_data):
         time_dim,
         vehicle_dim 
     )
-    print("6️⃣ Sales fact table complete")
+    print("6️⃣ Accident fact table complete")
 
     return {
         "dim_time": time_dim,
